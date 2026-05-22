@@ -1,0 +1,13 @@
+<div class="stats">
+  {{#each items}}
+    <div class="stat">
+      <div class="org"><span class="pill">{{> icon name=org_icon size=14}}</span>{{org}}</div>
+      <div class="row">
+        <span class="a">{{before}}</span>
+        <span class="arrow">→</span>
+        <span class="b">{{after}}</span>
+      </div>
+      <div class="label">{{{md label_md}}}</div>
+    </div>
+  {{/each}}
+</div>

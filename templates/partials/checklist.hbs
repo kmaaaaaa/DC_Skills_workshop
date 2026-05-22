@@ -1,0 +1,11 @@
+<div class="checklist">
+  <h5>{{title}}</h5>
+  <ul>
+    {{#each items_md}}
+      <li>
+        <span class="chk">{{> icon name="ico-check" size=14}}</span>
+        {{{md this}}}
+      </li>
+    {{/each}}
+  </ul>
+</div>

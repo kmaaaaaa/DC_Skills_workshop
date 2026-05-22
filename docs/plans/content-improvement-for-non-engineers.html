@@ -1,0 +1,1153 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>コンテンツ改善提案：非エンジニア向け Skills 作成のための前提知識強化</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700&family=Noto+Serif+JP:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #F4F1EA;
+    --bg-2: #FBF9F4;
+    --paper: #FFFFFF;
+    --ink: #1B1A17;
+    --ink-2: #3C3A34;
+    --ink-3: #75716A;
+    --line: #E4DFD3;
+    --line-2: #D9D3C4;
+    --accent: #C8643C;
+    --accent-2: #A14F2C;
+    --accent-soft: #F6E3D6;
+    --leaf: #5C6B3F;
+    --serif: "Noto Serif JP", "Hiragino Mincho ProN", serif;
+    --sans: "Noto Sans JP", "Hiragino Kaku Gothic ProN", system-ui, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-feature-settings: "palt";
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    font-size: 16px;
+    line-height: 1.75;
+    letter-spacing: .01em;
+  }
+
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  ::selection { background: var(--accent); color: #fff; }
+
+  /* ===== layout ===== */
+  .page-layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 0;
+    min-height: 100vh;
+    max-width: 1180px;
+    margin: 0 auto;
+  }
+
+  /* ===== sidebar ===== */
+  .sidebar {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    border-right: 1px solid var(--line);
+    background: var(--bg-2);
+    padding: 40px 0;
+  }
+
+  .sidebar-inner {
+    padding: 0 24px;
+  }
+
+  .sidebar-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .sidebar-title {
+    font-family: var(--serif);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1.5;
+    margin-bottom: 32px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .toc-list {
+    list-style: none;
+  }
+
+  .toc-list li {
+    margin-bottom: 4px;
+  }
+
+  .toc-list a {
+    display: block;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 12.5px;
+    color: var(--ink-2);
+    line-height: 1.45;
+    transition: background .15s, color .15s;
+  }
+
+  .toc-list a:hover {
+    background: var(--accent-soft);
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .toc-num {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: .1em;
+    margin-right: 6px;
+  }
+
+  .sidebar-meta {
+    margin-top: 32px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+    font-size: 11.5px;
+    color: var(--ink-3);
+    line-height: 1.7;
+  }
+
+  .sidebar-meta .badge {
+    display: inline-block;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .08em;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+  }
+
+  /* ===== main content ===== */
+  .main {
+    padding: 60px 64px 100px;
+    min-width: 0;
+  }
+
+  /* ===== doc header ===== */
+  .doc-header {
+    margin-bottom: 56px;
+    padding-bottom: 40px;
+    border-bottom: 2px solid var(--accent);
+  }
+
+  .doc-eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+
+  .doc-title {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(22px, 2.8vw, 36px);
+    line-height: 1.25;
+    letter-spacing: -.005em;
+    color: var(--ink);
+    margin-bottom: 20px;
+  }
+
+  .doc-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-3);
+    letter-spacing: .05em;
+  }
+
+  .doc-meta span { display: inline-flex; align-items: center; gap: 6px; }
+  .doc-meta .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
+
+  /* ===== section headings ===== */
+  .section-block {
+    margin-bottom: 64px;
+    scroll-margin-top: 24px;
+  }
+
+  h2.sec-h2 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(20px, 2.4vw, 28px);
+    line-height: 1.3;
+    color: var(--ink);
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+
+  h2.sec-h2 .h2-num {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--accent);
+    letter-spacing: .1em;
+    flex-shrink: 0;
+  }
+
+  h3.sec-h3 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 18px;
+    color: var(--ink);
+    margin: 32px 0 14px;
+  }
+
+  h4.sec-h4 {
+    font-family: var(--mono);
+    font-size: 13px;
+    letter-spacing: .1em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin: 28px 0 10px;
+  }
+
+  /* ===== prose ===== */
+  .prose {
+    font-size: 15.5px;
+    line-height: 1.85;
+    color: var(--ink-2);
+    max-width: 720px;
+  }
+
+  .prose p { margin-bottom: 16px; }
+  .prose p:last-child { margin-bottom: 0; }
+  .prose strong { color: var(--ink); font-weight: 600; }
+  .prose em { font-style: italic; color: var(--ink); }
+  .prose code {
+    font-family: var(--mono);
+    font-size: .88em;
+    background: var(--accent-soft);
+    color: var(--accent-2);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+
+  .prose ul, .prose ol {
+    padding-left: 20px;
+    margin-bottom: 16px;
+  }
+  .prose li { margin-bottom: 4px; }
+  .prose ul ul, .prose ol ol, .prose ul ol, .prose ol ul {
+    margin-top: 4px;
+    margin-bottom: 4px;
+  }
+
+  /* ===== divider ===== */
+  hr.divider {
+    border: none;
+    border-top: 1px solid var(--line);
+    margin: 48px 0;
+  }
+
+  /* ===== table ===== */
+  .table-wrap {
+    overflow-x: auto;
+    margin: 24px 0;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    background: var(--paper);
+  }
+
+  thead tr {
+    background: var(--ink);
+    color: #fff;
+  }
+
+  thead th {
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 500;
+    font-family: var(--sans);
+    font-size: 13px;
+    letter-spacing: .03em;
+    white-space: nowrap;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid var(--line);
+    transition: background .1s;
+  }
+
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--bg); }
+
+  tbody td {
+    padding: 11px 16px;
+    color: var(--ink-2);
+    vertical-align: top;
+    line-height: 1.6;
+  }
+
+  tbody td code {
+    font-family: var(--mono);
+    font-size: .85em;
+    background: var(--accent-soft);
+    color: var(--accent-2);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+
+  /* first col accent */
+  tbody td:first-child {
+    font-weight: 500;
+    color: var(--ink);
+  }
+
+  /* ===== code block ===== */
+  .code-block {
+    background: var(--ink);
+    color: #E8E2D7;
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.65;
+    border-radius: 12px;
+    padding: 28px 32px;
+    overflow-x: auto;
+    margin: 24px 0;
+    tab-size: 2;
+    white-space: pre;
+  }
+
+  pre.code-block code {
+    background: transparent;
+    color: inherit;
+    padding: 0;
+    font-size: inherit;
+    border-radius: 0;
+  }
+
+  /* ===== checklist ===== */
+  .checklist {
+    list-style: none;
+    padding: 0;
+    margin: 16px 0;
+  }
+
+  .checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 15px;
+    color: var(--ink-2);
+    line-height: 1.6;
+  }
+
+  .checklist li:last-child { border-bottom: none; }
+
+  .checklist .cb {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    border: 1.5px solid var(--line-2);
+    border-radius: 4px;
+    margin-top: 3px;
+    display: grid;
+    place-items: center;
+    background: var(--paper);
+  }
+
+  .checklist .cb.checked {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .checklist .cb.checked::after {
+    content: "";
+    display: block;
+    width: 10px;
+    height: 6px;
+    border-left: 2px solid #fff;
+    border-bottom: 2px solid #fff;
+    transform: rotate(-45deg) translate(1px, -1px);
+  }
+
+  /* ===== callout ===== */
+  .callout {
+    background: var(--accent-soft);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 16px 20px;
+    margin: 20px 0;
+    font-size: 14.5px;
+    color: var(--ink-2);
+    line-height: 1.7;
+  }
+
+  .callout strong { color: var(--accent); }
+
+  /* ===== risk id ===== */
+  .risk-id {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  /* ===== tag / badge inline ===== */
+  .tag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    padding: 1px 7px;
+    border-radius: 4px;
+    letter-spacing: .06em;
+  }
+  .tag-orange { background: var(--accent-soft); color: var(--accent); }
+  .tag-dark { background: var(--ink); color: #E8E2D7; }
+
+  /* ===== scope cards ===== */
+  .scope-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin: 24px 0;
+  }
+
+  .scope-card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 20px 22px;
+  }
+
+  .scope-card .sc-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin-bottom: 6px;
+  }
+
+  .scope-card .sc-title {
+    font-family: var(--serif);
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 10px;
+    line-height: 1.4;
+  }
+
+  .scope-card .sc-body {
+    font-size: 13.5px;
+    color: var(--ink-2);
+    line-height: 1.7;
+  }
+
+  .scope-card.recommended {
+    border-color: var(--accent);
+    border-width: 2px;
+    background: #FFFAF7;
+  }
+
+  .scope-card .sc-rec {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: .1em;
+    margin-bottom: 4px;
+  }
+
+  /* ===== responsive ===== */
+  @media (max-width: 900px) {
+    .page-layout {
+      grid-template-columns: 1fr;
+    }
+    .sidebar {
+      position: static;
+      height: auto;
+      border-right: none;
+      border-bottom: 1px solid var(--line);
+    }
+    .main {
+      padding: 40px 28px 80px;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .main { padding: 28px 16px 60px; }
+    .doc-title { font-size: 22px; }
+    .scope-cards { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="page-layout">
+
+  <!-- ===== Sidebar ===== -->
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+      <span class="sidebar-label">コンテンツ改善提案</span>
+      <div class="sidebar-title">非エンジニア向け<br>Skills 前提知識強化</div>
+
+      <nav aria-label="目次">
+        <ul class="toc-list">
+          <li><a href="#s1"><span class="toc-num">01</span>目的</a></li>
+          <li><a href="#s2"><span class="toc-num">02</span>現状の章別評価</a></li>
+          <li><a href="#s3"><span class="toc-num">03</span>抜けている前提知識</a></li>
+          <li><a href="#s4"><span class="toc-num">04</span>改善アプローチ（3案）</a></li>
+          <li><a href="#s5"><span class="toc-num">05</span>追加コンテンツリスト</a></li>
+          <li><a href="#s6"><span class="toc-num">06</span>新ブロック種別の評価</a></li>
+          <li><a href="#s7"><span class="toc-num">07</span>推奨実装スコープ</a></li>
+          <li><a href="#s8"><span class="toc-num">08</span>影響範囲</a></li>
+          <li><a href="#s9"><span class="toc-num">09</span>Devil's Advocate</a></li>
+          <li><a href="#s10"><span class="toc-num">10</span>確認事項（承認時）</a></li>
+          <li><a href="#s11"><span class="toc-num">11</span>完了条件</a></li>
+          <li><a href="#s12"><span class="toc-num">12</span>スコープ外</a></li>
+        </ul>
+      </nav>
+
+      <div class="sidebar-meta">
+        <div class="badge">提案段階</div>
+        <div><strong>作成日</strong>: 2026-05-21</div>
+        <div style="margin-top:6px"><strong>対象</strong>: content/page.md</div>
+        <div style="margin-top:6px"><strong>読者</strong>: 非エンジニア（経営層・管理職・現場担当者）</div>
+        <div style="margin-top:10px;color:var(--accent)">ユーザー承認待ち</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===== Main ===== -->
+  <main class="main">
+
+    <!-- Doc Header -->
+    <header class="doc-header">
+      <div class="doc-eyebrow">Content Improvement Plan · DC Skills Workshop</div>
+      <h1 class="doc-title">コンテンツ改善提案：非エンジニア向け<br>Skills 作成のための前提知識強化</h1>
+      <div class="doc-meta">
+        <span><span class="dot"></span>作成日: 2026-05-21</span>
+        <span><span class="dot"></span>ステータス: 提案段階（ユーザー承認待ち）</span>
+        <span><span class="dot"></span>対象ファイル: content/page.md</span>
+      </div>
+    </header>
+
+    <!-- 1. 目的 -->
+    <section class="section-block" id="s1">
+      <h2 class="sec-h2"><span class="h2-num">01</span>目的（What &amp; Why）</h2>
+      <div class="prose">
+        <p>現状の <code>content/page.md</code> は <strong>戦略的価値の説明に重きを置いた経営層向けガイド</strong> になっており、以下が達成しづらい:</p>
+        <ul>
+          <li>読み終えた人が <strong>「明日から自分で Skills を作れる」状態に到達できない</strong></li>
+          <li><strong>「Claude / Claude Code / Skills の関係」「フォルダはどこ」「YAML/Markdownの読み方」</strong> といった <strong>最低限の前提</strong> が抜けている</li>
+          <li>用語（コンテキスト、トークン、MCP、プラグイン、スラッシュコマンド等）の <strong>未定義のまま使用</strong> が散在</li>
+        </ul>
+        <p>本提案では、コンテンツを <strong>「戦略 → 前提知識 → 構造理解 → ハンズオン → 運用」</strong> の学習導線に整え、<strong>非エンジニアが自走できる教材</strong>へとアップグレードする。</p>
+      </div>
+    </section>
+
+    <!-- 2. 現状評価 -->
+    <section class="section-block" id="s2">
+      <h2 class="sec-h2"><span class="h2-num">02</span>現状コンテンツの章別評価</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>章</th>
+              <th>現状の強み</th>
+              <th>非エンジニア視点の欠落</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>s1 戦略的意義</td>
+              <td>ROI 数値・3社事例が説得力◎</td>
+              <td>「Claudeとは／Claude Code との関係」が<strong>未定義</strong></td>
+            </tr>
+            <tr>
+              <td>s2 機能構造</td>
+              <td>CLAUDE.md vs Skills 対比、3層構造、キッチンアナロジー</td>
+              <td><strong>YAMLとは何か未説明</strong>、<strong>フォルダ構造のビジュアル無し</strong>、SKILL.md の最小実例なし</td>
+            </tr>
+            <tr>
+              <td>s3 判断基準</td>
+              <td>2×2 マトリクスは秀逸</td>
+              <td>「自分の業務を当てはめる」演習・境界事例なし</td>
+            </tr>
+            <tr>
+              <td>s4 構築プロセス</td>
+              <td>4ステップ・DBS・skill-creator・コード例あり</td>
+              <td><strong>環境セットアップ手順なし</strong>、トリガー(description)の書き方詳説なし、最小スキル例の段階的解説なし</td>
+            </tr>
+            <tr>
+              <td>s5 ユースケース</td>
+              <td>金融3例 + Before/After 表</td>
+              <td><strong>職種別の幅出し不足</strong>（経理・マーケ・人事・営業）、「明日作れる最小スキル」の具体例なし</td>
+            </tr>
+            <tr>
+              <td>s6 リスク管理</td>
+              <td>落とし穴4件・チェックリスト</td>
+              <td>バージョン管理（Git）への触れ方、チーム共有の3段階（個人/プロジェクト/組織）なし</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 3. 前提知識 -->
+    <section class="section-block" id="s3">
+      <h2 class="sec-h2"><span class="h2-num">03</span>抜けている前提知識（10カテゴリ）</h2>
+      <div class="prose">
+        <p>非エンジニアが Skills を作るために <strong>最低限知っておくべき</strong> ことの棚卸し:</p>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>カテゴリ</th>
+              <th>内容</th>
+              <th>現状</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>K1</td>
+              <td><strong>Claude製品ファミリ</strong></td>
+              <td>Claude（Web）/ Claude Code / Claude API の違い、Skills はどこで動くか</td>
+              <td>❌ 完全に欠落</td>
+            </tr>
+            <tr>
+              <td>K2</td>
+              <td><strong>環境セットアップ</strong></td>
+              <td>Claude Code のインストール、Windows/Mac 両対応、最初の <code>~/.claude/</code> フォルダ</td>
+              <td>❌ 欠落</td>
+            </tr>
+            <tr>
+              <td>K3</td>
+              <td><strong>Markdown 超入門</strong></td>
+              <td>見出し・リスト・コード・強調の5記法</td>
+              <td>❌ 欠落</td>
+            </tr>
+            <tr>
+              <td>K4</td>
+              <td><strong>YAMLフロントマター</strong></td>
+              <td><code>---</code> で挟む / <code>name:</code>、<code>description:</code> の意味</td>
+              <td>△ コード例にあるが解説なし</td>
+            </tr>
+            <tr>
+              <td>K5</td>
+              <td><strong>フォルダ構造のビジュアル</strong></td>
+              <td><code>~/.claude/skills/xxx/SKILL.md</code> のツリー図</td>
+              <td>❌ 欠落</td>
+            </tr>
+            <tr>
+              <td>K6</td>
+              <td><strong>最小スキル（Hello Skill）</strong></td>
+              <td>10行で動く「週報スキル」のフル例 + 段階的解説</td>
+              <td>△ s4 にあるが解説なし</td>
+            </tr>
+            <tr>
+              <td>K7</td>
+              <td><strong>トリガー設計（descriptionの書き方）</strong></td>
+              <td>「いつ呼ばれるか」を決める description の Good/Bad 例</td>
+              <td>△ 注意喚起のみ</td>
+            </tr>
+            <tr>
+              <td>K8</td>
+              <td><strong>デバッグの初動</strong></td>
+              <td>「動かない時に最初に見る3つ」</td>
+              <td>❌ 欠落</td>
+            </tr>
+            <tr>
+              <td>K9</td>
+              <td><strong>用語集</strong></td>
+              <td>コンテキスト/トークン/MCP/プラグイン/スラッシュコマンド</td>
+              <td>❌ 散在・未定義</td>
+            </tr>
+            <tr>
+              <td>K10</td>
+              <td><strong>チーム共有の3段階</strong></td>
+              <td>個人スキル / プロジェクトスキル / 組織配布</td>
+              <td>❌ 欠落</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 4. 改善アプローチ -->
+    <section class="section-block" id="s4">
+      <h2 class="sec-h2"><span class="h2-num">04</span>改善アプローチ（3案）</h2>
+      <div class="prose">
+        <p>ユーザーに選んでいただく必要のある <strong>大方針</strong> を 3 案提示します。</p>
+      </div>
+
+      <h3 class="sec-h3">案 A: 前提知識章を新設（章番号を s0 として追加）</h3>
+      <div class="prose">
+        <ul>
+          <li>s1〜s6 はそのまま保持</li>
+          <li><strong>新 s0「はじめに：環境と前提知識」</strong> を追加</li>
+          <li>K1〜K5、K9 をこの章に集約</li>
+        </ul>
+        <p><strong>メリット</strong>: 既存資産を保護、構造変更最小、用語集が早期に登場<br>
+        <strong>デメリット</strong>: 章数が増えてボリューム拡大、s1〜s6 内の重複は残る</p>
+      </div>
+
+      <h3 class="sec-h3">案 B: 既存6章に補強コンテンツを差し込む（章追加なし）</h3>
+      <div class="prose">
+        <ul>
+          <li>s1〜s6 の構成を保持</li>
+          <li>各章内に「📝 用語注釈」「🛠️ 実例」「✋ 自分の業務に当てはめる」などの<strong>小ブロック</strong>を追加</li>
+          <li>用語集は s6 後ろに付録として配置</li>
+        </ul>
+        <p><strong>メリット</strong>: 章構成を変えずに済む（README/CHANGELOG への影響最小）、ナビゲーション安定<br>
+        <strong>デメリット</strong>: 補強コンテンツが分散して「全体像」をつかみにくい、ハンズオンへの導線が弱い</p>
+      </div>
+
+      <h3 class="sec-h3">案 C: 章構成を再編して「学習導線」を最優先（推奨）</h3>
+      <div class="prose">
+        <p>新6章構成:</p>
+        <ol>
+          <li><strong>s1 なぜSkillsか</strong>（戦略的意義、現s1から圧縮）</li>
+          <li><strong>s2 環境とフォルダ構造</strong>（新規：K1, K2, K5）</li>
+          <li><strong>s3 SKILL.mdの読み方・書き方</strong>（現s2 + K3, K4, K6）</li>
+          <li><strong>s4 何をスキル化するか</strong>（現s3 + 職種別ユースケース）</li>
+          <li><strong>s5 作って育てる：実践プロセス</strong>（現s4 + K7, K8、ハンズオン強化）</li>
+          <li><strong>s6 運用・リスク・チーム共有</strong>（現s6 + K10）</li>
+        </ol>
+        <p>ユースケース（現s5）は s4 に統合、impact-table は s1 のヒーロー周辺へ移動。用語集は付録として s6 後に配置。</p>
+        <p><strong>メリット</strong>: 学習効果最大、自走できる読者を生み出せる<br>
+        <strong>デメリット</strong>: 大規模な書き換え、ナビゲーション全変更、社内既配布版との差分大</p>
+      </div>
+    </section>
+
+    <!-- 5. 追加コンテンツリスト -->
+    <section class="section-block" id="s5">
+      <h2 class="sec-h2"><span class="h2-num">05</span>具体的な追加コンテンツリスト</h2>
+      <div class="prose">
+        <p>採用案にかかわらず、<strong>追加すべきコンテンツの中身</strong> を整理。</p>
+      </div>
+
+      <h3 class="sec-h3">5.1 新規ブロック：「環境セットアップ」（K1, K2）</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>ブロック種別</th><th>内容</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>prose</td><td>Claude（Web）／ Claude Code ／ Claude API の3者比較を1段落で</td></tr>
+            <tr><td>table</td><td>3製品 × 用途 × Skills対応 × 起動方法</td></tr>
+            <tr><td>codeblock</td><td>Claude Code のインストール1コマンド（Mac/Win）</td></tr>
+            <tr><td>warn</td><td>必要環境（Node.js, シェル）</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="sec-h3">5.2 新規ブロック：「フォルダ構造のビジュアル」（K5）</h3>
+      <div class="prose">
+        <p>ツリー図を表現するために、<strong>新ブロック種別 <code>tree</code> を新設</strong>する必要がある:</p>
+      </div>
+      <pre class="code-block"><code>~/.claude/
+├── skills/              # 個人スキル
+│   ├── financial-report/
+│   │   ├── SKILL.md     # ← 中核：手順書
+│   │   ├── references/  # 参照知識
+│   │   └── scripts/     # 補助スクリプト
+│   └── weekly-report/
+└── CLAUDE.md            # 全体ルール
+
+.claude/                  # プロジェクトスキル（リポジトリ内）
+└── skills/
+    └── xxx/SKILL.md</code></pre>
+      <div class="callout">
+        <strong>推奨：codeblock で代用</strong> — ツリー記号 <code>├── └──</code> を直接書く方式を採用し、新ブロック追加コストを回避。
+      </div>
+
+      <h3 class="sec-h3">5.3 新規ブロック：「Markdown ／ YAML 超入門」（K3, K4）</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>ブロック種別</th><th>内容</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>layers</td><td>「Markdownの5記法」を5層で（見出し/リスト/コード/強調/リンク）</td></tr>
+            <tr><td>codeblock</td><td><code>---\nname: ...\ndescription: ...\n---</code> の最小例</td></tr>
+            <tr><td>pull</td><td>「YAMLは見出しに使うラベル、本文はMarkdown」と覚える</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="sec-h3">5.4 新規ブロック：「最小スキル（Hello Skill）」（K6）</h3>
+      <div class="prose">
+        <ul>
+          <li>「週報フォーマットを整える」スキルを10行で実装</li>
+          <li>各行に<strong>逐行コメント</strong>を入れた解説</li>
+          <li>既存 codeblock 種別で表現可能</li>
+        </ul>
+      </div>
+
+      <h3 class="sec-h3">5.5 新規ブロック：「description の Good/Bad 例」（K7）</h3>
+      <div class="prose">
+        <p><code>stats</code> 種別を流用、または新規に <code>compare</code> 種別（Bad ↔ Good を並べる）を検討。<strong>推奨：既存 <code>stats</code> を流用</strong>（before/after を Bad/Good として使う）。</p>
+      </div>
+
+      <h3 class="sec-h3">5.6 新規ブロック：「デバッグの初動 3 ステップ」（K8）</h3>
+      <div class="prose">
+        <p>既存 <code>steps</code> 種別を流用。</p>
+      </div>
+
+      <h3 class="sec-h3">5.7 新規ブロック：「用語集」（K9）</h3>
+      <div class="prose">
+        <p>新ブロック種別 <code>glossary</code> を検討、または既存 <code>table</code> で代用（用語 / 一行説明 / 関連項目）。<strong>推奨：table で代用</strong>。</p>
+      </div>
+
+      <h3 class="sec-h3">5.8 新規ブロック：「職種別ユースケース」拡充</h3>
+      <div class="prose">
+        <p>既存 <code>usecases</code> 種別を流用、3件 → 6〜9件に拡張:</p>
+        <ul>
+          <li>経理：月次決算サマリー作成</li>
+          <li>マーケ：競合分析レポート</li>
+          <li>人事：求人原稿レビュー</li>
+          <li>営業：提案書ドラフト生成</li>
+          <li>法務：契約書差分チェック</li>
+          <li>IT：障害報告書テンプレート</li>
+        </ul>
+      </div>
+
+      <h3 class="sec-h3">5.9 「チーム共有の3段階」（K10）</h3>
+      <div class="prose">
+        <p>既存 <code>layers</code> 種別を流用:</p>
+        <ul>
+          <li>L1 個人スキル（<code>~/.claude/skills/</code>）</li>
+          <li>L2 プロジェクトスキル（<code>.claude/skills/</code> をリポジトリにコミット）</li>
+          <li>L3 組織配布（プラグインマーケットプレイス／社内 Git）</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 6. 新ブロック種別評価 -->
+    <section class="section-block" id="s6">
+      <h2 class="sec-h2"><span class="h2-num">06</span>新ブロック種別の必要性評価</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>候補</th>
+              <th>必要性</th>
+              <th>代替案</th>
+              <th>判定</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>tree</code> (ツリー図)</td>
+              <td>中</td>
+              <td>codeblock で代用可</td>
+              <td><strong>新規不要</strong></td>
+            </tr>
+            <tr>
+              <td><code>compare</code> (Bad/Good)</td>
+              <td>低</td>
+              <td>stats で代用可</td>
+              <td><strong>新規不要</strong></td>
+            </tr>
+            <tr>
+              <td><code>glossary</code> (用語集)</td>
+              <td>中</td>
+              <td>table で代用可</td>
+              <td><strong>新規不要</strong></td>
+            </tr>
+            <tr>
+              <td><code>tutorial</code> (手順 + 期待出力)</td>
+              <td>低</td>
+              <td>steps + codeblock で代用</td>
+              <td><strong>新規不要</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout">
+        <strong>結論</strong>: ビルドパイプラインに手を入れる必要はなく、既存 19 ブロック種別の組み合わせで実装可能。
+      </div>
+    </section>
+
+    <!-- 7. 推奨実装スコープ -->
+    <section class="section-block" id="s7">
+      <h2 class="sec-h2"><span class="h2-num">07</span>推奨実装範囲（3段階）</h2>
+      <div class="prose">
+        <p>ユーザーに選んでいただく <strong>実装スコープ</strong> の段階:</p>
+      </div>
+
+      <div class="scope-cards">
+        <div class="scope-card">
+          <div class="sc-label">スコープ Min</div>
+          <div class="sc-title">半日 / 案 B 相当</div>
+          <div class="sc-body">
+            <ul style="padding-left:16px;font-size:13.5px;color:var(--ink-2);line-height:1.8">
+              <li>各章内に<strong>用語注釈の <code>warn</code> ブロック</strong>を追加</li>
+              <li>s4 に<strong>最小スキル解説付き codeblock</strong> を追加</li>
+              <li>s4 末尾に<strong>デバッグ初動の <code>steps</code> ブロック</strong>を追加</li>
+            </ul>
+            <p style="margin-top:12px;font-size:13px;color:var(--ink-3)">→ 既存6章構成を完全保持、変更最小</p>
+          </div>
+        </div>
+
+        <div class="scope-card recommended">
+          <div class="sc-rec">★ 推奨</div>
+          <div class="sc-label">スコープ Mid</div>
+          <div class="sc-title">1日 / 案 A 相当</div>
+          <div class="sc-body">
+            <ul style="padding-left:16px;font-size:13.5px;color:var(--ink-2);line-height:1.8">
+              <li>スコープ Min に加え</li>
+              <li><strong>s0「はじめに：環境と前提知識」章を新設</strong>（K1, K2, K5, 用語集）</li>
+              <li><strong>s5 のユースケースを職種別6件に拡張</strong></li>
+            </ul>
+            <p style="margin-top:12px;font-size:13px;color:var(--ink-3)">→ 構造変更最小、学習効果は中〜高</p>
+          </div>
+        </div>
+
+        <div class="scope-card">
+          <div class="sc-label">スコープ Max</div>
+          <div class="sc-title">2〜3日 / 案 C 相当</div>
+          <div class="sc-body">
+            <ul style="padding-left:16px;font-size:13.5px;color:var(--ink-2);line-height:1.8">
+              <li>スコープ Mid に加え</li>
+              <li><strong>章構成を再編</strong>（学習導線最優先）</li>
+              <li>各章内に「自分の業務に当てはめる」演習ブロック追加</li>
+              <li>impact-table を s1 ヒーロー周辺に移動</li>
+              <li>ナビゲーションラベルも刷新</li>
+            </ul>
+            <p style="margin-top:12px;font-size:13px;color:var(--ink-3)">→ 教材としての完成度最大、ただし大幅書き換え</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. 影響範囲 -->
+    <section class="section-block" id="s8">
+      <h2 class="sec-h2"><span class="h2-num">08</span>影響範囲</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>項目</th>
+              <th>スコープ Min</th>
+              <th>スコープ Mid</th>
+              <th>スコープ Max</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>content/page.md</code> の行数増加</td>
+              <td>+50〜80行</td>
+              <td>+200〜300行</td>
+              <td>+500〜700行</td>
+            </tr>
+            <tr>
+              <td>ナビゲーション (<code>nav.links</code>)</td>
+              <td>変更なし</td>
+              <td>1項目追加</td>
+              <td>全項目見直し</td>
+            </tr>
+            <tr>
+              <td>既存ブロック種別の追加実装</td>
+              <td>不要</td>
+              <td>不要</td>
+              <td>不要</td>
+            </tr>
+            <tr>
+              <td>README/editor-guide.md 更新</td>
+              <td>任意</td>
+              <td>軽微（章数+1の言及）</td>
+              <td>必要</td>
+            </tr>
+            <tr>
+              <td>CHANGELOG 追記</td>
+              <td>v1.1.0 として</td>
+              <td>v1.1.0 として</td>
+              <td>v2.0.0 として</td>
+            </tr>
+            <tr>
+              <td>推定ビルドサイズ</td>
+              <td>+5KB</td>
+              <td>+15KB</td>
+              <td>+30KB</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 9. Devil's Advocate -->
+    <section class="section-block" id="s9">
+      <h2 class="sec-h2"><span class="h2-num">09</span>Devil's Advocate（計画時セルフレビュー）</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>リスク</th>
+              <th>対応方針</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="risk-id">R1</span></td>
+              <td>スコープ Max を選ぶと<strong>既存配布版との互換性が崩れる</strong></td>
+              <td>CHANGELOG で BREAKING CHANGE 明記、または v2.0.0 とする</td>
+            </tr>
+            <tr>
+              <td><span class="risk-id">R2</span></td>
+              <td>「非エンジニア向け」を意識しすぎて<strong>本来の戦略ガイド読者（経営層）の体験を損なう</strong></td>
+              <td>s1（戦略的意義）は短縮しない、追加要素はあくまで補強として配置</td>
+            </tr>
+            <tr>
+              <td><span class="risk-id">R3</span></td>
+              <td><strong>用語集の維持コスト</strong>（用語が増えるたび更新が必要）</td>
+              <td>s6 後ろの付録に配置し、各章で参照リンクを張る方式に</td>
+            </tr>
+            <tr>
+              <td><span class="risk-id">R4</span></td>
+              <td>「Claude Code のインストール」は<strong>OS依存・バージョン依存</strong>が強く、すぐ陳腐化する</td>
+              <td>URL 直書きはせず「公式ドキュメント参照」の誘導に留める</td>
+            </tr>
+            <tr>
+              <td><span class="risk-id">R5</span></td>
+              <td>「Hello Skill」例が<strong>読者の業務と乖離</strong>すると刺さらない</td>
+              <td>週報・議事録要約など、ホワイトカラーに共通する題材を選ぶ</td>
+            </tr>
+            <tr>
+              <td><span class="risk-id">R6</span></td>
+              <td>ボリューム拡大で<strong>読了時間が伸びる</strong>（現「READING 約12分」）</td>
+              <td>hero.meta の readingTime を再計算し更新</td>
+            </tr>
+            <tr>
+              <td><span class="risk-id">R7</span></td>
+              <td>案 C（章再編）を採用すると<strong>過去のリンク（#s1〜#s6）が壊れる</strong></td>
+              <td>旧 ID は alias として残す or リダイレクト案内を s1 冒頭に</td>
+            </tr>
+            <tr>
+              <td><span class="risk-id">R8</span></td>
+              <td>私（メイン）が「非エンジニア向け」を判断するが、<strong>実際のターゲット読者像が解像度低い</strong></td>
+              <td>計画書承認時にユーザーに具体的な読者像（職種・AI習熟度）を確認</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="sec-h3">Codex セカンドオピニオン</h3>
+      <div class="callout">
+        <strong>計画時 Codex DA</strong>: 本提案はコンテンツ設計の領域で、技術的判断は限定的。<strong>スキップ</strong>（理由: コードベース変更を伴わず、判断はユーザーの編集方針依存）
+      </div>
+    </section>
+
+    <!-- 10. 確認事項 -->
+    <section class="section-block" id="s10">
+      <h2 class="sec-h2"><span class="h2-num">10</span>ユーザーに確認したいこと（承認時に決めてほしい）</h2>
+      <div class="prose">
+        <p>採用に際して <strong>最低 3 点</strong> の意思決定が必要:</p>
+      </div>
+
+      <h3 class="sec-h3">Q1. アプローチ案</h3>
+      <div class="prose">
+        <p>案A（前提知識章を新設） / 案B（既存章に補強） / 案C（章再編、推奨）</p>
+      </div>
+
+      <h3 class="sec-h3">Q2. 実装スコープ</h3>
+      <div class="prose">
+        <p>Min（半日）/ Mid（1日、★推奨）/ Max（2〜3日）</p>
+      </div>
+
+      <h3 class="sec-h3">Q3. 想定読者の解像度</h3>
+      <div class="prose">
+        <ul>
+          <li><strong>AI習熟度</strong>: 全くの初心者 / Claude Web 利用経験あり / Claude Code 触ったことある</li>
+          <li><strong>職種範囲</strong>: 全職種共通教材 / 特定職種（経理・マーケ等）に最適化</li>
+          <li><strong>配布形式</strong>: 社内勉強会の事前配布資料 / セッション中の投影資料 / 自習用ガイド</li>
+        </ul>
+      </div>
+
+      <h3 class="sec-h3">Q4. 既存テーマからの逸脱許容度</h3>
+      <div class="prose">
+        <p>既存の「戦略 → 機能 → 判断 → 構築 → 事例 → リスク」順序を <strong>死守する</strong> / <strong>再編許容</strong></p>
+      </div>
+    </section>
+
+    <!-- 11. 完了条件 -->
+    <section class="section-block" id="s11">
+      <h2 class="sec-h2"><span class="h2-num">11</span>完了条件（実装フェーズに進む場合）</h2>
+      <div class="prose">
+        <p>承認後の実装計画は別途作成しますが、最低限の合格基準:</p>
+      </div>
+      <ul class="checklist">
+        <li>
+          <div class="cb"></div>
+          <span>非エンジニアが<strong>章末まで読めば、SKILL.md を自力で1つ書ける</strong></span>
+        </li>
+        <li>
+          <div class="cb"></div>
+          <span>章中に登場する<strong>専門用語が全て初出時に定義されている</strong>（または用語集にリンク）</span>
+        </li>
+        <li>
+          <div class="cb"></div>
+          <span><strong>環境セットアップ</strong>から<strong>Hello Skill 完成</strong>までの<strong>最短経路</strong>が示されている</span>
+        </li>
+        <li>
+          <div class="cb"></div>
+          <span>既存の戦略的価値訴求（s1）の説得力を<strong>損なわない</strong></span>
+        </li>
+        <li>
+          <div class="cb"></div>
+          <span><code>npm run build</code> が成功し、視覚的に崩れがない</span>
+        </li>
+      </ul>
+    </section>
+
+    <!-- 12. スコープ外 -->
+    <section class="section-block" id="s12">
+      <h2 class="sec-h2"><span class="h2-num">12</span>スコープ外（本提案では扱わない）</h2>
+      <div class="prose">
+        <ul>
+          <li>翻訳（英語版作成）</li>
+          <li>ダークテーマ版 (<code>claude-skills-dark.html</code>) への反映</li>
+          <li>インタラクティブ要素（クイズ、進捗表示）</li>
+          <li>動画・図解アニメーション</li>
+          <li>印刷向けPDF化</li>
+        </ul>
+      </div>
+    </section>
+
+  </main>
+</div>
+</body>
+</html>

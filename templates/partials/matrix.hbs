@@ -1,0 +1,19 @@
+<div class="matrix">
+  <div class="y-label">{{y_label}}</div>
+  <div>
+    <div class="grid">
+      {{#each cells}}
+        <div class="cell{{#if hi}} hi{{/if}}">
+          <span class="lvl">{{level}}</span>
+          <h5>{{title}}</h5>
+          <p>{{body}}</p>
+        </div>
+      {{/each}}
+    </div>
+    <div class="x-label">
+      <div></div>
+      <div>{{x_labels.left}}</div>
+      <div>{{x_labels.right}}</div>
+    </div>
+  </div>
+</div>

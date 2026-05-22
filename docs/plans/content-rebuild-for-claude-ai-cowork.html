@@ -1,0 +1,952 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>コンテンツ全面書き換え実装計画 v2：Claude.ai / Cowork 前提・案C採用</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700&family=Noto+Serif+JP:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #F4F1EA;
+    --bg-2: #FBF9F4;
+    --paper: #FFFFFF;
+    --ink: #1B1A17;
+    --ink-2: #3C3A34;
+    --ink-3: #75716A;
+    --line: #E4DFD3;
+    --line-2: #D9D3C4;
+    --accent: #C8643C;
+    --accent-2: #A14F2C;
+    --accent-soft: #F6E3D6;
+    --serif: "Noto Serif JP", "Hiragino Mincho ProN", serif;
+    --sans: "Noto Sans JP", "Hiragino Kaku Gothic ProN", system-ui, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-feature-settings: "palt";
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    font-size: 16px;
+    line-height: 1.75;
+    letter-spacing: .01em;
+  }
+
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  ::selection { background: var(--accent); color: #fff; }
+
+  .page-layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 0;
+    min-height: 100vh;
+    max-width: 1180px;
+    margin: 0 auto;
+  }
+
+  .sidebar {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    border-right: 1px solid var(--line);
+    background: var(--bg-2);
+    padding: 40px 0;
+  }
+
+  .sidebar-inner { padding: 0 24px; }
+
+  .sidebar-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .sidebar-title {
+    font-family: var(--serif);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1.5;
+    margin-bottom: 32px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .toc-list { list-style: none; }
+  .toc-list li { margin-bottom: 4px; }
+
+  .toc-list a {
+    display: block;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    color: var(--ink-2);
+    line-height: 1.45;
+    transition: background .15s, color .15s;
+  }
+
+  .toc-list a:hover {
+    background: var(--accent-soft);
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .toc-num {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: .1em;
+    margin-right: 6px;
+  }
+
+  .sidebar-meta {
+    margin-top: 32px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+    font-size: 11.5px;
+    color: var(--ink-3);
+    line-height: 1.7;
+  }
+
+  .sidebar-meta .badge {
+    display: inline-block;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .08em;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+  }
+
+  .main {
+    padding: 60px 64px 100px;
+    min-width: 0;
+  }
+
+  .doc-header {
+    margin-bottom: 56px;
+    padding-bottom: 40px;
+    border-bottom: 2px solid var(--accent);
+  }
+
+  .doc-eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+
+  .doc-title {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(22px, 2.6vw, 34px);
+    line-height: 1.25;
+    letter-spacing: -.005em;
+    color: var(--ink);
+    margin-bottom: 20px;
+  }
+
+  .doc-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--ink-3);
+    letter-spacing: .04em;
+    margin-bottom: 20px;
+  }
+
+  .doc-meta span { display: inline-flex; align-items: center; gap: 6px; }
+  .doc-meta .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+
+  .doc-intro {
+    background: var(--accent-soft);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 16px 20px;
+    font-size: 14px;
+    color: var(--ink-2);
+    line-height: 1.8;
+  }
+
+  .doc-intro strong { color: var(--accent-2); }
+
+  .section-block {
+    margin-bottom: 64px;
+    scroll-margin-top: 24px;
+  }
+
+  h2.sec-h2 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(20px, 2.4vw, 28px);
+    line-height: 1.3;
+    color: var(--ink);
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+
+  h2.sec-h2 .h2-num {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--accent);
+    letter-spacing: .1em;
+    flex-shrink: 0;
+  }
+
+  h3.sec-h3 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 18px;
+    color: var(--ink);
+    margin: 32px 0 14px;
+  }
+
+  .prose {
+    font-size: 15.5px;
+    line-height: 1.85;
+    color: var(--ink-2);
+    max-width: 720px;
+  }
+
+  .prose p { margin-bottom: 16px; }
+  .prose p:last-child { margin-bottom: 0; }
+  .prose strong { color: var(--ink); font-weight: 600; }
+  .prose em { font-style: italic; color: var(--ink); }
+  .prose code {
+    font-family: var(--mono);
+    font-size: .88em;
+    background: var(--accent-soft);
+    color: var(--accent-2);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+
+  .prose ul, .prose ol { padding-left: 20px; margin-bottom: 16px; }
+  .prose li { margin-bottom: 4px; }
+
+  hr.divider {
+    border: none;
+    border-top: 1px solid var(--line);
+    margin: 48px 0;
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+    margin: 24px 0;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    background: var(--paper);
+  }
+
+  thead tr { background: var(--ink); color: #fff; }
+
+  thead th {
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 500;
+    font-family: var(--sans);
+    font-size: 13px;
+    letter-spacing: .03em;
+    white-space: nowrap;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid var(--line);
+    transition: background .1s;
+  }
+
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--bg); }
+
+  tbody td {
+    padding: 11px 16px;
+    color: var(--ink-2);
+    vertical-align: top;
+    line-height: 1.6;
+  }
+
+  tbody td:first-child { font-weight: 500; color: var(--ink); }
+
+  tbody td code {
+    font-family: var(--mono);
+    font-size: .85em;
+    background: var(--accent-soft);
+    color: var(--accent-2);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+
+  .checklist {
+    list-style: none;
+    padding: 0;
+    margin: 16px 0;
+  }
+
+  .checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 15px;
+    color: var(--ink-2);
+    line-height: 1.6;
+  }
+
+  .checklist li:last-child { border-bottom: none; }
+
+  .checklist .cb {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    border: 1.5px solid var(--line-2);
+    border-radius: 4px;
+    margin-top: 3px;
+    display: grid;
+    place-items: center;
+    background: var(--paper);
+  }
+
+  .checklist .cb.checked {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .checklist .cb.checked::after {
+    content: "";
+    display: block;
+    width: 10px;
+    height: 6px;
+    border-left: 2px solid #fff;
+    border-bottom: 2px solid #fff;
+    transform: rotate(-45deg) translate(1px, -1px);
+  }
+
+  .callout {
+    background: var(--accent-soft);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 16px 20px;
+    margin: 20px 0;
+    font-size: 14.5px;
+    color: var(--ink-2);
+    line-height: 1.7;
+  }
+
+  .callout strong { color: var(--accent); }
+
+  .risk-id {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  @media (max-width: 900px) {
+    .page-layout { grid-template-columns: 1fr; }
+    .sidebar {
+      position: static;
+      height: auto;
+      border-right: none;
+      border-bottom: 1px solid var(--line);
+    }
+    .main { padding: 40px 28px 80px; }
+  }
+
+  @media (max-width: 600px) {
+    .main { padding: 28px 16px 60px; }
+    .doc-title { font-size: 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="page-layout">
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+      <span class="sidebar-label">実装計画 v2</span>
+      <div class="sidebar-title">コンテンツ全面書き換え<br>Claude.ai / Cowork 前提</div>
+
+      <nav aria-label="目次">
+        <ul class="toc-list">
+          <li><a href="#s1"><span class="toc-num">01</span>前提条件</a></li>
+          <li><a href="#s2"><span class="toc-num">02</span>新章構成（案C）</a></li>
+          <li><a href="#s3"><span class="toc-num">03</span>各章のブロック設計</a></li>
+          <li><a href="#s4"><span class="toc-num">04</span>Hero・ナビゲーション</a></li>
+          <li><a href="#s5"><span class="toc-num">05</span>影響範囲</a></li>
+          <li><a href="#s6"><span class="toc-num">06</span>Agent Team</a></li>
+          <li><a href="#s7"><span class="toc-num">07</span>Devil's Advocate</a></li>
+          <li><a href="#s8"><span class="toc-num">08</span>完了条件</a></li>
+          <li><a href="#s9"><span class="toc-num">09</span>スコープ外</a></li>
+        </ul>
+      </nav>
+
+      <div class="sidebar-meta">
+        <div class="badge">計画段階</div>
+        <div><strong>作成日</strong>: 2026-05-21</div>
+        <div style="margin-top:6px"><strong>対象</strong>: content/page.md（1ファイルのみ）</div>
+        <div style="margin-top:6px"><strong>アプローチ</strong>: 案C採用</div>
+        <div style="margin-top:6px;color:var(--accent)">ユーザー承認待ち</div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="doc-header">
+      <div class="doc-eyebrow">Implementation Plan v2 · DC Skills Workshop</div>
+      <h1 class="doc-title">コンテンツ全面書き換え実装計画 v2<br>Claude.ai / Cowork 前提・案C採用</h1>
+      <div class="doc-meta">
+        <span><span class="dot"></span>作成日: 2026-05-21（v2 改訂版）</span>
+        <span><span class="dot"></span>対象: content/page.md（本計画のスコープはこれ1ファイルのみ）</span>
+        <span><span class="dot"></span>ステータス: Codex セカンドオピニオン反映済み、ユーザー承認待ち</span>
+      </div>
+      <div class="doc-intro">
+        <strong>v1 からの主な変更点:</strong> Cowork 関連の数値・固有名詞を脚注化、「2026年5月時点」と明記（H1）／「個人 ZIP アップロード」を主導線に絞り、組織配布は参考情報に格下げ（H2）／ZIP 化・アップロード・検証の具体手順を s5 に明示（M1）／README / CHANGELOG / editor-guide の連鎖更新を<strong>本計画スコープから除外</strong>（M2）／Hero 数値の固定数依存を回避（L1）
+      </div>
+    </header>
+
+    <!-- 1. 前提条件 -->
+    <section class="section-block" id="s1">
+      <h2 class="sec-h2"><span class="h2-num">01</span>前提条件（情報の確かさレベル付き）</h2>
+
+      <h3 class="sec-h3">1.1 確実な前提</h3>
+      <div class="prose">
+        <ul>
+          <li>Skills は <code>SKILL.md</code>（YAML フロントマター + Markdown）を中核とするフォルダ</li>
+          <li>Claude.ai は Anthropic 提供の Web チャット製品</li>
+          <li>Skills は <strong>Claude.ai 設定からアップロードして利用可能</strong></li>
+        </ul>
+      </div>
+
+      <h3 class="sec-h3">1.2 2026年5月時点の参考情報（教材内では脚注扱い）</h3>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>項目</th><th>内容</th><th>確度</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Claude Cowork</td>
+              <td>Claude.ai の有料プラン向け自律実行機能。ローカルファイル操作・スケジュール実行などが可能</td>
+              <td>△ 公式ドキュメント参照を案内</td>
+            </tr>
+            <tr>
+              <td>アップロード方法</td>
+              <td>Customize &gt; Skills から ZIP として追加</td>
+              <td>○ 複数の解説記事で一致</td>
+            </tr>
+            <tr>
+              <td>公式 Skills テンプレート</td>
+              <td>PDF / Word / Excel / PowerPoint / ブランドガイド / MCP builder など複数提供</td>
+              <td>△ 数値は明記せず「複数」と表現</td>
+            </tr>
+            <tr>
+              <td>Cowork の業界別バンドル</td>
+              <td>Legal / Small Business / Marketing Ops 等が提供されている</td>
+              <td>△ 「業界向けバンドルが順次拡大中」と一般化</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout">
+        <strong>教材内での扱い方針:</strong> すべての数値・固有名詞は「2026年5月時点。最新は Anthropic 公式ヘルプを参照」と明記。出典セクションを footer の上に追加（「Anthropic 公式ヘルプ／Claude.ai 内ドキュメント」と案内）
+      </div>
+
+      <h3 class="sec-h3">1.3 削除する Claude Code 固有要素</h3>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>要素</th><th>削除/置換方針</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>~/.claude/skills/</code> のパス</td><td>削除</td></tr>
+            <tr><td><code>.claude/skills/フォルダ名/SKILL.md</code> のプロジェクトスキル</td><td>削除</td></tr>
+            <tr><td><code>skill-creator</code> プラグイン、<code>/plugin</code>、<code>/context</code></td><td>削除</td></tr>
+            <tr><td>CLAUDE.md（プロジェクトルート）</td><td>削除</td></tr>
+            <tr><td>ターミナル前提</td><td>削除、すべて Web UI 操作</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- 2. 新章構成 -->
+    <section class="section-block" id="s2">
+      <h2 class="sec-h2"><span class="h2-num">02</span>新章構成（案 C 採用、v2）</h2>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>#</th><th>章タイトル</th><th>主旨</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>s1</td><td><strong>なぜ Skills か</strong></td><td>戦略的価値・ROI 事例（圧縮版）</td></tr>
+            <tr><td>s2</td><td><strong>環境と全体像</strong></td><td>Claude.ai での Skills 利用、Cowork で広がる選択肢、フォルダ構造</td></tr>
+            <tr><td>s3</td><td><strong>SKILL.md の読み方・書き方</strong></td><td>YAML/Markdown 入門、3層構造、Hello Skill</td></tr>
+            <tr><td>s4</td><td><strong>何をスキル化するか</strong></td><td>頻度×複雑性マトリクス + 職種別 6 ユースケース</td></tr>
+            <tr><td>s5</td><td><strong>作って届ける：実践プロセス</strong></td><td>4 ステップ + ZIP化・アップロード・検証手順 + デバッグ</td></tr>
+            <tr><td>s6</td><td><strong>運用・リスク・育てる文化</strong></td><td>落とし穴・セキュリティ・チェックリスト・育てる運用</td></tr>
+            <tr><td>付録</td><td><strong>用語集</strong></td><td>コンテキスト/トークン/MCP/Projects/Skills 等</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout">
+        <strong>ナビゲーション（7 項目）:</strong> 戦略 / 環境 / 書き方 / 判断 / 実践 / 運用 / 用語集
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- 3. 各章のブロック設計 -->
+    <section class="section-block" id="s3">
+      <h2 class="sec-h2"><span class="h2-num">03</span>各章のブロック設計</h2>
+
+      <h3 class="sec-h3">s1. なぜ Skills か（旧 s1 圧縮 + 旧 s5 impact-table 移動）</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ブロック</th><th>内容</th></tr></thead>
+          <tbody>
+            <tr><td>prose</td><td>AI エージェント時代の文脈（旧 s1 冒頭を流用）</td></tr>
+            <tr><td>stats（3カード）</td><td>チューリング / Anthropic / Rimo 社事例（旧 stats 流用）</td></tr>
+            <tr><td>impact-table</td><td>Before/After 表（旧 s5 から移動）</td></tr>
+            <tr><td>pull</td><td>「Skills は使いながら育てる資産」</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="sec-h3">s2. 環境と全体像（新規）</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ブロック</th><th>内容</th></tr></thead>
+          <tbody>
+            <tr><td>prose</td><td>「Skills は SKILL.md と参照ファイルを束ねた<strong>フォルダ</strong>。Claude.ai で<strong>ZIP アップロード</strong>するだけで使える」</td></tr>
+            <tr><td>h3</td><td>「どこで Skills を使えるか」</td></tr>
+            <tr><td>table</td><td>利用環境の比較（無料プラン / 有料プラン / Cowork で広がる機能）※具体料金は明記せず「有料プランで利用可能」と表現</td></tr>
+            <tr><td>h3</td><td>「Skills フォルダの中身」</td></tr>
+            <tr><td>codeblock</td><td>ツリー図（my-skill/SKILL.md, scripts/, references/, assets/）</td></tr>
+            <tr><td>h3</td><td>「キッチンのアナロジー：MCP と Skills の関係」</td></tr>
+            <tr><td>kitchen</td><td>旧 kitchen 流用</td></tr>
+            <tr><td>warn</td><td>「2026年5月時点の情報。料金・機能の最新は Anthropic 公式ヘルプで確認してください」</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="sec-h3">s3. SKILL.md の読み方・書き方（新規 + 旧 s2 一部）</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ブロック</th><th>内容</th></tr></thead>
+          <tbody>
+            <tr><td>prose</td><td>「Skills はプログラムではなく文書」</td></tr>
+            <tr><td>h3</td><td>「Markdown の最低限 5 記法」</td></tr>
+            <tr><td>layers（5）</td><td>見出し / リスト / 強調 / コード / リンク</td></tr>
+            <tr><td>h3</td><td>「YAML フロントマターとは」</td></tr>
+            <tr><td>codeblock</td><td><code>---\nname: ...\ndescription: ...\n---</code> の最小例 + 注釈</td></tr>
+            <tr><td>h3</td><td>「3 層構造（Progressive Disclosure）」</td></tr>
+            <tr><td>layers（3）</td><td>旧 layers 流用</td></tr>
+            <tr><td>h3</td><td>「Hello Skill：週報整形を 10 行で」</td></tr>
+            <tr><td>codeblock</td><td>週報フォーマット整形スキルの全文</td></tr>
+            <tr><td>prose</td><td>逐行解説（YAML 部の意味、Workflow の意味）</td></tr>
+            <tr><td>warn</td><td>命名規則（kebab-case、Claude を含まない、XML タグ禁止）</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="sec-h3">s4. 何をスキル化するか（旧 s3 + 旧 s5 拡張）</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ブロック</th><th>内容</th></tr></thead>
+          <tbody>
+            <tr><td>h3</td><td>「向く業務の 3 カテゴリー」</td></tr>
+            <tr><td>cats（3）</td><td>旧 cats 流用</td></tr>
+            <tr><td>h3</td><td>「頻度 × 複雑性マトリクス」</td></tr>
+            <tr><td>matrix</td><td>旧 matrix 流用</td></tr>
+            <tr><td>h3</td><td>「職種別ユースケース 6 選」</td></tr>
+            <tr><td>usecases（6）</td><td>経理 / マーケ / 人事 / 営業 / 法務 / IT</td></tr>
+            <tr><td>h3</td><td>「自分の業務に当てはめる」</td></tr>
+            <tr><td>checklist</td><td>業務棚卸し用チェックリスト</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="sec-h3">s5. 作って届ける：実践プロセス（旧 s4 改訂 + Codex M1 反映）</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ブロック</th><th>内容</th></tr></thead>
+          <tbody>
+            <tr><td>h3</td><td>「構築の 4 ステップ」</td></tr>
+            <tr><td>steps（4）</td><td>要件定義 / 草案作成 / テスト / 育てる（旧 steps を Claude.ai 用に修正）</td></tr>
+            <tr><td>h3</td><td>「DBS フレームワーク」</td></tr>
+            <tr><td>dbs（3）</td><td>旧 dbs 流用</td></tr>
+            <tr><td>h3</td><td><strong>「アップロードまでの 5 ステップ」</strong>（Codex M1 反映）</td></tr>
+            <tr><td>steps（5）</td><td>①SKILL.md を作成 ②フォルダにまとめる ③フォルダを ZIP 化 ④Claude.ai 設定 &gt; Skills でアップロード ⑤チャットで動作検証</td></tr>
+            <tr><td>h3</td><td>「description の設計：トリガー語を制す」</td></tr>
+            <tr><td>stats（3）</td><td>Bad description ↔ Good description の対比</td></tr>
+            <tr><td>h3</td><td>「公式テンプレートを活用する」（Codex L1 反映：固定数を出さない）</td></tr>
+            <tr><td>prose</td><td>「Anthropic が公式に提供している複数のテンプレート（PDF・Word・Excel・PowerPoint・ブランドガイド等）を参考に、自社用にカスタマイズするのが早道」</td></tr>
+            <tr><td>h3</td><td>「動かない時の 3 ステップ」（Codex M1 反映）</td></tr>
+            <tr><td>steps（3）</td><td>①description を見直す ②YAML 構文を確認 ③Claude に「なぜ呼ばれなかった？」と聞く</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="sec-h3">s6. 運用・リスク・育てる文化（旧 s6 軽量化）</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ブロック</th><th>内容</th></tr></thead>
+          <tbody>
+            <tr><td>h3</td><td>「やりがちな失敗と対策」</td></tr>
+            <tr><td>pitfalls（4）</td><td>旧 pitfalls 流用（<code>/context</code> 言及は「コンテキスト消費の意識」一般論に書き換え）</td></tr>
+            <tr><td>h3</td><td>「セキュリティとガバナンス」</td></tr>
+            <tr><td>warn</td><td>機密情報の扱い（旧 warn 流用）</td></tr>
+            <tr><td>h3</td><td>「チームで使う：個人から組織へ」</td></tr>
+            <tr><td>prose</td><td>「個人で作った Skills は ZIP ファイルとして共有可能。組織展開の最新方法は Anthropic 公式情報を参照」※Codex H2 反映で軽量化</td></tr>
+            <tr><td>h3</td><td>「最終確認チェックリスト」</td></tr>
+            <tr><td>checklist</td><td>旧 checklist 流用</td></tr>
+            <tr><td>cta</td><td>「最初の一歩」</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="sec-h3">付録. 用語集（新規）</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ブロック</th><th>内容</th></tr></thead>
+          <tbody>
+            <tr><td>h3</td><td>「用語集」</td></tr>
+            <tr><td>table</td><td>用語 / 一行説明 / 詳細 の 3 列、20 語前後</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout">
+        <strong>掲載予定語（約20語）:</strong> Claude.ai / Claude Cowork / Claude API / Projects / Artifacts / Skills / SKILL.md / プラグイン / Dispatch / MCP / コンテキスト / トークン / YAML / Markdown / kebab-case / プログレッシブ・ディスクロージャー / トリガー / フロントマター / Workflow / references / scripts / assets
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- 4. Hero・ナビゲーション -->
+    <section class="section-block" id="s4">
+      <h2 class="sec-h2"><span class="h2-num">04</span>Hero・ナビゲーションの更新</h2>
+
+      <h3 class="sec-h3">Hero 数値（4 枚）— 固定数依存を回避（Codex L1）</h3>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>数値</th><th>対応</th></tr></thead>
+          <tbody>
+            <tr><td>「日本企業のAI導入率 55.2%」</td><td>維持</td></tr>
+            <tr><td>「仮想チーム規模 32 人分」</td><td>維持</td></tr>
+            <tr><td>「レポート作成時間 7 分」</td><td>維持</td></tr>
+            <tr><td>「構築期間 2 週間」</td><td>維持</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout">
+        「公式 Skills 17 個」のような陳腐化リスクのある数値は採用しない。本文では「複数のテンプレートが提供されている」と一般化する。
+      </div>
+
+      <h3 class="sec-h3">Hero メタ</h3>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>項目</th><th>値</th></tr></thead>
+          <tbody>
+            <tr><td>READING</td><td>約 15 分</td></tr>
+            <tr><td>SECTIONS</td><td>6 章 + 用語集</td></tr>
+            <tr><td>FOR</td><td>Claude.ai を触ったことのある非エンジニア</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="sec-h3">Nav リンク</h3>
+
+      <div class="callout">
+        戦略 / 環境 / 書き方 / 判断 / 実践 / 運用 / 用語集（7 項目）
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- 5. 影響範囲 -->
+    <section class="section-block" id="s5">
+      <h2 class="sec-h2"><span class="h2-num">05</span>影響範囲（v2 で大幅縮小）</h2>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>項目</th><th>影響</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><code>content/page.md</code></td>
+              <td><strong>全面書き換え</strong>（407 → 約 700〜800 行）</td>
+            </tr>
+            <tr>
+              <td><code>templates/</code>、<code>scripts/build.js</code>、<code>package.json</code></td>
+              <td><strong>変更なし</strong></td>
+            </tr>
+            <tr>
+              <td><code>claude-skills-light.html</code></td>
+              <td>再ビルドで自動更新</td>
+            </tr>
+            <tr>
+              <td>旧アンカーリンク <code>#s5</code></td>
+              <td>s4 内に <code>id="usecases"</code> 中間 anchor を追加で対応</td>
+            </tr>
+            <tr>
+              <td><strong>README / CHANGELOG / editor-guide</strong></td>
+              <td><strong>本計画スコープ外</strong>（Codex M2 反映）。page.md 完了後、必要差分があれば<strong>別承認で実施</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- 6. Agent Team -->
+    <section class="section-block" id="s6">
+      <h2 class="sec-h2"><span class="h2-num">06</span>Agent Team</h2>
+
+      <h3 class="sec-h3">モデル割り当てテーブル</h3>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>エージェント名</th>
+              <th>subagent_type</th>
+              <th>モデル</th>
+              <th>担当スコープ</th>
+              <th>実行順序</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td>スキーマ・章構成確定</td>
+              <td>−（メイン直接）</td>
+              <td><code>Opus</code></td>
+              <td>本計画書</td>
+              <td>Phase 1（完了）</td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td><code>content/page.md</code> 全面書き換え</td>
+              <td>general-purpose</td>
+              <td><code>sonnet</code></td>
+              <td>content/page.md</td>
+              <td>Phase 2</td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td>npm run build 実行</td>
+              <td>general-purpose</td>
+              <td><code>haiku</code></td>
+              <td>−</td>
+              <td>Phase 3</td>
+            </tr>
+            <tr>
+              <td>4</td>
+              <td>視覚的差分・整合性検証</td>
+              <td>general-purpose</td>
+              <td><code>sonnet</code></td>
+              <td>生成 HTML レビュー</td>
+              <td>Phase 4</td>
+            </tr>
+            <tr>
+              <td>5</td>
+              <td>実装後 DA レビュー</td>
+              <td>general-purpose</td>
+              <td><code>opus</code></td>
+              <td>全変更</td>
+              <td>Phase 4（並列）</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="sec-h3">モデル割り当ての自己チェック</h3>
+
+      <ul class="checklist">
+        <li><span class="cb checked"></span><span>新規コンテンツ作成タスクに sonnet を割り当て（#2）</span></li>
+        <li><span class="cb checked"></span><span>純コマンド実行（<code>npm run build</code>）に haiku（#3）</span></li>
+        <li><span class="cb checked"></span><span>DA に opus（#5）</span></li>
+        <li><span class="cb checked"></span><span>「メイン直接」はスキーマ確定のみ（#1）</span></li>
+        <li><span class="cb checked"></span><span>各エージェントはスコープ外には触らない</span></li>
+      </ul>
+
+      <h3 class="sec-h3">Phase 2 の実装方針</h3>
+
+      <div class="prose">
+        <p><code>content/page.md</code> は同一ファイルへの全面書き換えのため<strong>並列分担不可</strong>。Sonnet 1 体に以下を渡して一括書き換え:</p>
+        <ul>
+          <li>既存 <code>content/page.md</code></li>
+          <li>本計画書 §3（新章構成）</li>
+          <li>既存 <code>editor-guide.md</code>（YAML 構文ルール）</li>
+        </ul>
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- 7. Devil's Advocate -->
+    <section class="section-block" id="s7">
+      <h2 class="sec-h2"><span class="h2-num">07</span>Devil's Advocate（計画時セルフレビュー + Codex 反映）</h2>
+
+      <div class="callout">
+        <strong>観点:</strong> 「この計画が失敗するとしたら、どこで失敗するか？」— 肯定的レビューではなく、欠陥・矛盾・リスクを攻撃的に洗い出す破壊的テスト
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>#</th><th>リスク</th><th>対応方針</th><th>由来</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="risk-id">R1</span></td>
+              <td>Cowork 仕様の最新性が不確実</td>
+              <td>数値・固有名詞を脚注化、「2026年5月時点」明記、公式ヘルプ誘導</td>
+              <td>Codex H1</td>
+            </tr>
+            <tr>
+              <td><span class="risk-id">R2</span></td>
+              <td>「組織配布・プロジェクトスキル」の仕様混同</td>
+              <td>s6 で「公式情報を確認」レベルに軽量化、個人 ZIP 共有を主導線</td>
+              <td>Codex H2</td>
+            </tr>
+            <tr>
+              <td><span class="risk-id">R3</span></td>
+              <td>ZIP 化・アップロード手順が薄い</td>
+              <td>s5 に「アップロードまでの 5 ステップ」を steps ブロックで追加</td>
+              <td>Codex M1</td>
+            </tr>
+            <tr>
+              <td><span class="risk-id">R4</span></td>
+              <td>README/CHANGELOG/editor-guide 連鎖更新がスコープ拡大</td>
+              <td><strong>本計画スコープ外に変更</strong>、page.md 完了後に別承認</td>
+              <td>Codex M2</td>
+            </tr>
+            <tr>
+              <td><span class="risk-id">R5</span></td>
+              <td>Hero「公式 Skills 17 個」は陳腐化</td>
+              <td>採用しない、本文では「複数のテンプレートが提供されている」と一般化</td>
+              <td>Codex L1</td>
+            </tr>
+            <tr>
+              <td><span class="risk-id">R6</span></td>
+              <td>Hello Skill「週報整形」の実機検証ができていない</td>
+              <td>「典型例」として提示、<code>※実機での挙動は環境により変動</code>を注記</td>
+              <td>自セルフ</td>
+            </tr>
+            <tr>
+              <td><span class="risk-id">R7</span></td>
+              <td>旧アンカー <code>#s5</code> 後方互換</td>
+              <td>s4 内に <code>id="usecases"</code> 中間アンカー追加</td>
+              <td>自セルフ</td>
+            </tr>
+            <tr>
+              <td><span class="risk-id">R8</span></td>
+              <td>用語集と本文の重複・維持コスト</td>
+              <td>用語集は「最低限の定義」、詳細は本文で。Phase 4 検証時に未掲載語を抽出</td>
+              <td>自セルフ</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="sec-h3">Codex セカンドオピニオン</h3>
+
+      <div class="prose">
+        <p><strong>計画時 Codex DA</strong>: 実施済み（v1 に対して 2026/05/21）</p>
+        <ul>
+          <li>HIGH 2 件・MEDIUM 2 件・LOW 1 件の指摘 → 本 v2 で全反映</li>
+          <li>不確かな情報の事実検証は Codex の知識カットオフ（2024-06）の制約で完全実施できないため、教材内で<strong>断定を避ける</strong>方針で対応</li>
+        </ul>
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- 8. 完了条件 -->
+    <section class="section-block" id="s8">
+      <h2 class="sec-h2"><span class="h2-num">08</span>完了条件</h2>
+
+      <ul class="checklist">
+        <li><span class="cb"></span><span><code>content/page.md</code> が新 6 章 + 用語集で書き換えられている</span></li>
+        <li><span class="cb"></span><span>全ブロックが既存 19 ブロック種別の範囲内</span></li>
+        <li><span class="cb"></span><span><code>npm run build</code> が成功</span></li>
+        <li><span class="cb"></span><span>生成 HTML をブラウザで開いて視覚的に崩れがない</span></li>
+        <li><span class="cb"></span><span>Claude Code 固有記述（<code>~/.claude/</code>、<code>/plugin</code>、<code>/context</code>、CLAUDE.md 等）が完全に除去されている</span></li>
+        <li><span class="cb"></span><span>Cowork 関連の数値・固有名詞に「2026年5月時点」が明記されている</span></li>
+        <li><span class="cb"></span><span>s2/s6 で組織配布関連は「公式情報を参照」の誘導に留まっている</span></li>
+        <li><span class="cb"></span><span>s5 に「アップロードまでの 5 ステップ」が含まれる</span></li>
+        <li><span class="cb"></span><span>Hello Skill のサンプルが 10〜15 行で完結している</span></li>
+        <li><span class="cb"></span><span>用語集に主要 20 語前後が掲載されている</span></li>
+      </ul>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- 9. スコープ外 -->
+    <section class="section-block" id="s9">
+      <h2 class="sec-h2"><span class="h2-num">09</span>スコープ外（本実装では扱わない）</h2>
+
+      <div class="prose">
+        <ul>
+          <li>翻訳（英語版）</li>
+          <li>ダークテーマ版（<code>claude-skills-dark.html</code>）の同期書き換え</li>
+          <li>インタラクティブ要素（クイズ、進捗バー）</li>
+          <li>動画・図解アニメーション</li>
+          <li>印刷向け PDF 化</li>
+          <li>Claude Code 利用者向け付録</li>
+          <li>新規ブロック種別の追加</li>
+          <li>ビルドパイプライン（templates/, scripts/, package.json）の変更</li>
+          <li><strong>README / CHANGELOG / editor-guide の更新（Codex M2 反映）</strong> — page.md 完了後に必要差分があれば<strong>別承認</strong>で実施</li>
+        </ul>
+      </div>
+    </section>
+
+    <footer style="margin-top:80px;padding-top:32px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11px;color:var(--ink-3);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+      <span>DC Skills Workshop · 実装計画 v2</span>
+      <span>2026-05-21 · ステータス: ユーザー承認待ち</span>
+    </footer>
+  </main>
+</div>
+</body>
+</html>

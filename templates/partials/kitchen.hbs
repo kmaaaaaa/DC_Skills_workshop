@@ -1,0 +1,12 @@
+<div class="kitchen">
+  {{#each items}}
+    <div class="kit">
+      <div class="head">
+        <div class="ico">{{> icon name=icon size=22}}</div>
+        <h5>{{title}}</h5>
+        <span class="tag">{{tag}}</span>
+      </div>
+      <p>{{{md body_md}}}</p>
+    </div>
+  {{/each}}
+</div>

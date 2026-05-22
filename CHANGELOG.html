@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Changelog — Claude Skills 活用ガイド</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700&family=Noto+Serif+JP:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#F4F1EA;
+    --bg-2:#FBF9F4;
+    --paper:#FFFFFF;
+    --ink:#1B1A17;
+    --ink-2:#3C3A34;
+    --ink-3:#75716A;
+    --line:#E4DFD3;
+    --line-2:#D9D3C4;
+    --accent:#C8643C;
+    --accent-2:#A14F2C;
+    --accent-soft:#F6E3D6;
+    --serif:"Noto Serif JP","Hiragino Mincho ProN",serif;
+    --sans:"Noto Sans JP","Hiragino Kaku Gothic ProN",system-ui,sans-serif;
+    --mono:"JetBrains Mono",ui-monospace,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-feature-settings:"palt";-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+  body{font-size:16px;line-height:1.75;letter-spacing:.01em}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  ::selection{background:var(--accent);color:#fff}
+
+  .wrap{max-width:760px;margin:0 auto;padding:0 32px 80px}
+  @media(max-width:600px){.wrap{padding:0 20px 60px}}
+
+  /* header */
+  .page-header{padding:56px 0 40px;border-bottom:2px solid var(--line)}
+  .page-eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+  h1{font-family:var(--serif);font-weight:500;font-size:clamp(32px,5vw,52px);line-height:1.15;margin:0 0 12px;color:var(--ink)}
+  .page-desc{color:var(--ink-3);font-size:14.5px;line-height:1.75;margin:0}
+  .page-desc a{color:var(--accent)}
+
+  /* version section */
+  .version-section{padding:40px 0;border-bottom:1px solid var(--line)}
+  .version-section:last-of-type{border-bottom:none}
+
+  .version-header{display:flex;flex-wrap:wrap;align-items:baseline;gap:12px;margin-bottom:8px}
+  .version-number{font-family:var(--serif);font-weight:600;font-size:clamp(24px,4vw,34px);color:var(--accent);line-height:1.1}
+  .version-date{font-family:var(--mono);font-size:13px;color:var(--ink-3);letter-spacing:.04em}
+  .version-summary{color:var(--ink-2);font-size:15px;margin:8px 0 20px;line-height:1.75}
+
+  /* change kind groups */
+  .kind-group{margin-bottom:24px}
+  .kind-group:last-child{margin-bottom:0}
+
+  /* badges */
+  .badge{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.06em;padding:2px 8px;border-radius:99px;margin-bottom:10px;vertical-align:middle}
+  .badge-added{background:#DDF0E4;color:#2E6E46}
+  .badge-changed{background:#D6E8F7;color:#1E5482}
+  .badge-removed{background:#FDDEDE;color:#8B2222}
+  .badge-fixed{background:#FDECD6;color:#7A3D0A}
+  .badge-deprecated{background:#F0E8D6;color:#6B4D1A}
+  .badge-security{background:#E8D6F0;color:#5A1E7A}
+
+  /* h3 / h4 inside version */
+  .version-section h3{font-family:var(--serif);font-weight:500;font-size:18px;color:var(--ink);margin:24px 0 8px;line-height:1.35}
+  .version-section h4{font-family:var(--sans);font-weight:600;font-size:14px;color:var(--ink-2);margin:20px 0 6px;text-transform:uppercase;letter-spacing:.06em}
+
+  /* lists */
+  ul,ol{margin:8px 0;padding-left:1.5em}
+  li{margin-bottom:4px;line-height:1.75}
+  li ul,li ol{margin:4px 0}
+
+  code{font-family:var(--mono);font-size:.875em;background:var(--accent-soft);color:var(--accent-2);padding:1px 5px;border-radius:4px}
+
+  /* table */
+  table{width:100%;border-collapse:collapse;font-size:14px;margin:16px 0}
+  th{background:var(--bg-2);font-weight:600;color:var(--ink-2);border:1px solid var(--line);padding:8px 12px;text-align:left}
+  td{border:1px solid var(--line);padding:8px 12px;vertical-align:top;color:var(--ink-2)}
+  tr:nth-child(even) td{background:var(--bg-2)}
+
+  /* unreleased */
+  .version-unreleased .version-number{color:var(--ink-3);font-size:clamp(18px,3vw,24px);font-weight:400}
+
+  /* footer links */
+  .ref-links{padding:32px 0 0;border-top:1px solid var(--line);margin-top:40px}
+  .ref-links h3{font-family:var(--mono);font-size:12px;letter-spacing:.12em;color:var(--ink-3);text-transform:uppercase;margin:0 0 12px}
+  .ref-links ul{list-style:none;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:8px}
+  .ref-links li{margin:0}
+  .ref-links a{font-family:var(--mono);font-size:12px;color:var(--accent);border:1px solid var(--accent-soft);padding:3px 10px;border-radius:6px;display:inline-block}
+  .ref-links a:hover{background:var(--accent-soft);text-decoration:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="page-header">
+    <div class="page-eyebrow">Changelog</div>
+    <h1>変更履歴</h1>
+    <p class="page-desc">
+      Claude Skills 活用ガイド のすべての変更履歴を記録します。<br>
+      このプロジェクトは <a href="https://keepachangelog.com/ja/1.1.0/" target="_blank">Keep a Changelog 1.1.0</a> に準拠し、
+      バージョン管理は <a href="https://semver.org/lang/ja/" target="_blank">Semantic Versioning</a> に従います。
+    </p>
+  </header>
+
+  <!-- Unreleased -->
+  <section class="version-section version-unreleased">
+    <div class="version-header">
+      <span class="version-number">[Unreleased]</span>
+    </div>
+  </section>
+
+  <!-- v1.0.0 -->
+  <section class="version-section">
+    <div class="version-header">
+      <a class="version-number" href="https://github.com/example/dc-skills-workshop/releases/tag/v1.0.0" target="_blank">1.0.0</a>
+      <span class="version-date">2026-05-21</span>
+    </div>
+    <p class="version-summary">初期リリース: Markdown ⇄ HTML 連動ビルドパイプラインの実装</p>
+
+    <div class="kind-group">
+      <span class="badge badge-added">Added</span>
+      <ul>
+        <li><code>claude-skills-light.html</code> の手書き HTML から Markdown ベース管理へ移行した</li>
+        <li><code>content/page.md</code>: YAML フロントマター + Markdown 本文によるハイブリッドソース（407 行）を追加した</li>
+        <li><code>templates/page.hbs</code> + 20 個のパーシャル: Handlebars テンプレート（CSS/SVG アイコン保持）を追加した</li>
+        <li><code>scripts/build.js</code>: Node.js ビルドスクリプトを追加した
+          <ul>
+            <li>YAML パース（js-yaml v4 / YAML 1.2 仕様対応）</li>
+            <li>スキーマ検証（<code>KNOWN_BLOCK_TYPES</code>、19 種類のブロック）</li>
+            <li>3 つの Markdown ヘルパー: <code>md</code>（インライン）、<code>mdBlock</code>（ブロック）、<code>mdHead</code>（見出し）</li>
+            <li>日本語パンクチュエーション対応の regex 前処理（CommonMark フランキング規則を回避）</li>
+          </ul>
+        </li>
+        <li><code>package.json</code>: 依存 4 件（handlebars, js-yaml, gray-matter, marked）、npm scripts（<code>build</code>）を追加した</li>
+        <li><code>README.md</code>: クイックスタート・編集ワークフロー・トラブルシューティングを追加した</li>
+        <li><code>.gitignore</code>: node_modules / .tmp / mcp-process-info.txt の除外設定を追加した</li>
+        <li><code>docs/plans/markdown-html-link-system.md</code>（+ HTML 版）: 設計計画書を追加した</li>
+      </ul>
+    </div>
+
+    <h3>対応ブロック種別（19 種類）</h3>
+    <table>
+      <thead>
+        <tr><th>種別</th><th>ブロック名</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>段落系</td><td>prose, h3, h4</td></tr>
+        <tr><td>引用系</td><td>pull, warn</td></tr>
+        <tr><td>カード系</td><td>stats, layers, kitchen, cats, steps, dbs, usecases, pitfalls</td></tr>
+        <tr><td>データ系</td><td>table, impact-table, matrix</td></tr>
+        <tr><td>コード系</td><td>codeblock</td></tr>
+        <tr><td>リスト系</td><td>checklist</td></tr>
+        <tr><td>CTA 系</td><td>cta</td></tr>
+      </tbody>
+    </table>
+
+    <h3>設計上の判断（Phase 4 で発覚した問題への対応）</h3>
+    <ul>
+      <li>日本語隣接の <code>**bold**</code> が <code>&lt;strong&gt;</code> 化されない CommonMark フランキング問題を、regex 前処理で回避した</li>
+      <li>見出し用 <code>mdHead</code> ヘルパーで段落区切り <code>\n\n</code> を <code>&lt;br/&gt;</code> に変換し、<code>&lt;p&gt;</code> ラップを避けるようにした</li>
+      <li>表（<code>table</code> / <code>impact-table</code>）は YAML を二次元配列で表現し、テンプレートで <code>{{this}}</code> 展開する設計とした</li>
+    </ul>
+
+    <h3>スコープ外（今バージョンでは対応しない）</h3>
+    <ul>
+      <li>Watch mode（ファイル変更検知での自動再ビルド）</li>
+      <li>ライブリロード / 開発サーバー</li>
+      <li>HTML バリデーション / Lint</li>
+      <li>ダークテーマ版（<code>claude-skills-dark.html</code>）の同パイプライン化</li>
+    </ul>
+  </section>
+
+  <!-- reference links -->
+  <div class="ref-links">
+    <h3>Diff Links</h3>
+    <ul>
+      <li><a href="https://github.com/example/dc-skills-workshop/compare/v1.0.0...HEAD" target="_blank">[Unreleased]</a></li>
+      <li><a href="https://github.com/example/dc-skills-workshop/releases/tag/v1.0.0" target="_blank">[1.0.0]</a></li>
+    </ul>
+  </div>
+
+</div>
+</body>
+</html>

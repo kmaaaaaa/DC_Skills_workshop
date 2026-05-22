@@ -1,0 +1,20 @@
+{{#if caption}}<div class="table-cap">{{caption}}</div>{{/if}}
+<table class="impact">
+  <thead>
+    <tr>
+      {{#each headers}}
+        <th>{{this}}</th>
+      {{/each}}
+    </tr>
+  </thead>
+  <tbody>
+    {{#each rows}}
+      <tr>
+        <td class="key">{{this.[0]}}</td>
+        <td class="before">{{this.[1]}}</td>
+        <td class="after">{{this.[2]}}</td>
+        <td class="delta">{{this.[3]}}</td>
+      </tr>
+    {{/each}}
+  </tbody>
+</table>

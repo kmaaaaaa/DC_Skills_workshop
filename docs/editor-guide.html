@@ -1,0 +1,1168 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>content/page.md 編集者向け詳細リファレンスガイド</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700&family=Noto+Serif+JP:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#F4F1EA;
+    --bg-2:#FBF9F4;
+    --paper:#FFFFFF;
+    --ink:#1B1A17;
+    --ink-2:#3C3A34;
+    --ink-3:#75716A;
+    --line:#E4DFD3;
+    --line-2:#D9D3C4;
+    --accent:#C8643C;
+    --accent-2:#A14F2C;
+    --accent-soft:#F6E3D6;
+    --serif:"Noto Serif JP","Hiragino Mincho ProN",serif;
+    --sans:"Noto Sans JP","Hiragino Kaku Gothic ProN",system-ui,sans-serif;
+    --mono:"JetBrains Mono",ui-monospace,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-feature-settings:"palt";-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+  body{font-size:16px;line-height:1.75;letter-spacing:.01em}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  ::selection{background:var(--accent);color:#fff}
+
+  /* layout */
+  .layout{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
+  @media(max-width:900px){.layout{grid-template-columns:1fr}}
+
+  /* sidebar */
+  .sidebar{position:sticky;top:0;height:100vh;overflow-y:auto;background:var(--bg-2);border-right:1px solid var(--line);padding:36px 24px}
+  @media(max-width:900px){.sidebar{position:static;height:auto;border-right:none;border-bottom:1px solid var(--line)}}
+  .sidebar-title{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+  .sidebar nav ul{list-style:none;margin:0;padding:0}
+  .sidebar nav ul li{margin:0}
+  .sidebar nav ul li a{display:block;padding:7px 10px;border-radius:7px;font-size:13.5px;color:var(--ink-2);transition:background .15s,color .15s}
+  .sidebar nav ul li a:hover{background:var(--accent-soft);color:var(--accent-2);text-decoration:none}
+
+  /* main */
+  .main{max-width:880px;padding:60px 64px 100px;margin:0 auto;width:100%}
+  @media(max-width:900px){.main{padding:40px 24px 80px}}
+
+  /* headings */
+  h1{font-family:var(--serif);font-weight:500;font-size:clamp(30px,4vw,48px);line-height:1.2;letter-spacing:-.005em;margin:0 0 32px;color:var(--ink)}
+  h2{font-family:var(--serif);font-weight:500;font-size:32px;line-height:1.3;margin:72px 0 24px;padding-top:24px;color:var(--ink);border-top:1px solid var(--line);scroll-margin-top:24px}
+  h2:first-of-type{border-top:none;margin-top:16px}
+  h3{font-family:var(--serif);font-weight:500;font-size:22px;line-height:1.4;margin:48px 0 14px;color:var(--ink)}
+  h4{font-size:14px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--accent-2);margin:32px 0 10px;font-family:var(--mono)}
+
+  /* paragraph */
+  p{margin:0 0 18px;color:var(--ink-2);line-height:1.8;max-width:760px}
+  strong{font-weight:600;color:var(--ink)}
+  em{font-style:italic;color:var(--ink)}
+
+  /* inline code */
+  code{font-family:var(--mono);font-size:.85em;color:var(--accent-2);background:var(--accent-soft);padding:2px 6px;border-radius:4px}
+
+  /* code block */
+  pre{background:var(--ink);color:var(--bg);border-radius:12px;padding:24px 28px;margin:20px 0 28px;overflow-x:auto;font-family:var(--mono);font-size:13.5px;line-height:1.7}
+  pre code{background:none;color:inherit;padding:0;font-size:inherit;border-radius:0}
+
+  /* blockquote */
+  blockquote{margin:24px 0;padding:20px 28px;background:var(--bg-2);border-left:3px solid var(--accent);border-radius:0 10px 10px 0;color:var(--ink-2)}
+  blockquote p{margin:0;color:var(--ink-2)}
+
+  /* hr */
+  hr{border:none;border-top:1px solid var(--line);margin:48px 0}
+
+  /* table */
+  table{width:100%;border-collapse:separate;border-spacing:0;font-size:14px;background:var(--paper);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:24px 0 32px}
+  th,td{padding:14px 18px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+  thead th{background:var(--bg-2);font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);font-weight:500}
+  tbody tr:last-child td{border-bottom:none}
+  td code{font-size:.82em}
+
+  /* lists */
+  ul,ol{margin:12px 0 20px;padding-left:24px;color:var(--ink-2)}
+  li{margin:6px 0;line-height:1.75}
+  li code{font-size:.82em}
+  ul ul,ol ol{margin:4px 0}
+
+  /* doc header badge */
+  .doc-meta{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:20px}
+  .doc-meta .dot{width:6px;height:6px;border-radius:50%;background:var(--accent)}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-title">目次</div>
+  <nav>
+    <ul>
+      <li><a href="#s1">1. はじめに</a></li>
+      <li><a href="#s2">2. YAML の基礎</a></li>
+      <li><a href="#s3">3. ページ全体のスキーマ</a></li>
+      <li><a href="#s4">4. ブロック種別リファレンス</a></li>
+      <li><a href="#s5">5. Markdown 記法の対応範囲</a></li>
+      <li><a href="#s6">6. 編集ケーススタディ</a></li>
+      <li><a href="#s7">7. トラブルシューティング</a></li>
+      <li><a href="#s8">8. スコープ外</a></li>
+    </ul>
+  </nav>
+</aside>
+
+<!-- Main content -->
+<main class="main">
+
+<div class="doc-meta"><span class="dot"></span>編集者向け詳細リファレンスガイド</div>
+<h1>content/page.md 編集者向け詳細リファレンスガイド</h1>
+
+<blockquote><p>対象読者: <code>content/page.md</code> を編集してページ内容を更新する方（エンジニア不要）</p></blockquote>
+
+<hr>
+
+<h2 id="s1">1. はじめに</h2>
+
+<h3>編集の基本フロー</h3>
+
+<pre><code>content/page.md を編集
+    ↓
+npm run build（ターミナルで実行）
+    ↓
+ブラウザをリロード（Ctrl+F5 推奨）
+    ↓
+claude-skills-light.html に反映</code></pre>
+
+<h3>触ってよいファイル / 触ってはいけないファイル</h3>
+
+<table>
+<thead><tr><th>ファイル / フォルダ</th><th>編集</th><th>備考</th></tr></thead>
+<tbody>
+<tr><td><code>content/page.md</code></td><td><strong>OK</strong></td><td>編集対象。テキスト・数値・構造はここだけ変更する</td></tr>
+<tr><td><code>claude-skills-light.html</code></td><td><strong>禁止</strong></td><td>ビルド成果物。手動編集しても次の <code>npm run build</code> で上書きされる</td></tr>
+<tr><td><code>templates/partials/*.hbs</code></td><td>禁止</td><td>各ブロックのHTML構造。変更すると全ページに影響する</td></tr>
+<tr><td><code>templates/page.hbs</code></td><td>禁止</td><td>メインテンプレート（ナビ・ヒーロー・フッターの骨格）</td></tr>
+<tr><td><code>scripts/build.js</code></td><td>禁止</td><td>ビルドロジック本体</td></tr>
+<tr><td><code>package.json</code></td><td>禁止</td><td>npm 依存関係の定義</td></tr>
+</tbody>
+</table>
+
+<h3>ビルド成果物の見方</h3>
+
+<p><code>npm run build</code> を実行すると、ターミナルに以下のようなメッセージが表示される。</p>
+
+<pre><code>✓ Built claude-skills-light.html (82.45 KB, 6 sections, 34 blocks)</code></pre>
+
+<p>エラーが発生した場合は <code>[YAMLエラー]</code> または <code>[スキーマエラー]</code> のプレフィックス付きで原因が表示される。</p>
+
+<hr>
+
+<h2 id="s2">2. YAML の基礎（編集者向けに最低限）</h2>
+
+<h3>スカラ / 配列 / マップ</h3>
+
+<pre><code># スカラ（単一の値）
+title: "Claude Skills ガイド"
+value: "55.2"
+
+# 配列（- で始まるリスト）
+links:
+  - { href: "#s1", label: "戦略的意義" }
+  - { href: "#s2", label: "機能構造" }
+
+# マップ（オブジェクト。フィールド名: 値 のペア）
+figure:
+  key: "AI導入率"
+  value: "55.2"
+  unit: "%"</code></pre>
+
+<h3>ブロックスタイル vs フロースタイル</h3>
+
+<pre><code># フロースタイル（1行で書く、短い値向き）
+- { href: "#s1", label: "戦略的意義" }
+
+# ブロックスタイル（複数行、長い値向き）
+- href: "#s1"
+  label: "戦略的意義"</code></pre>
+
+<p>どちらも結果は同じ。フロースタイルはカード1枚など短い項目に使うと読みやすい。</p>
+
+<h3>引用符の使い分け（重要）</h3>
+
+<p>引用符の選択を誤るとYAML構文エラーになる。</p>
+
+<table>
+<thead><tr><th>引用符</th><th>書き方例</th><th>使いどころ</th></tr></thead>
+<tbody>
+<tr><td>ダブルクォート</td><td><code>"通常のテキスト"</code></td><td>最も一般的。ただし文字列内に <code>"</code> を含む場合は使えない</td></tr>
+<tr><td>シングルクォート</td><td><code>'"育てる資産"として'</code></td><td>文字列内にダブルクォートを含む場合に使う</td></tr>
+<tr><td>ブロックスカラ <code>|</code></td><td>複数行テキスト（下記参照）</td><td>改行を含む長文・段落テキスト</td></tr>
+<tr><td>引用符なし</td><td><code>value: 短いテキスト</code></td><td>特殊文字（<code>:</code>、<code>#</code>、<code>"</code>等）を含まない短い値のみ</td></tr>
+</tbody>
+</table>
+
+<p><strong>シングルクォートとダブルクォートの使い分け例:</strong></p>
+
+<pre><code># OK: 通常のダブルクォート
+title: "AIエージェント時代における Skills"
+
+# NG: 文字列内に " が含まれるためダブルクォートは使えない
+subtitle: "「使いこなす側」に"回る"ために"   # 構文エラー
+
+# OK: シングルクォートなら内部の " は問題なし
+body_md: '"育てる資産"として活用する'
+
+# OK: ダブルクォートを含む場合の別解（バックスラッシュエスケープ）
+subtitle: "「使いこなす側」に\"回る\"ために"</code></pre>
+
+<p><strong>ブロックスカラ <code>|</code> の使い方:</strong></p>
+
+<pre><code># | の後に改行し、同じインデントで続ける
+md: |
+  1段落目のテキスト。
+
+  空行を入れると段落区切りになる。
+  改行のみなら同一段落内の改行。</code></pre>
+
+<h3>インデント: スペース2つ、タブ禁止</h3>
+
+<pre><code># 正しい（スペース2つ）
+sections:
+  - id: s1
+    blocks:
+      - type: prose
+        md: "テキスト"
+
+# 誤り（タブ文字使用 → エラー）
+sections:
+	- id: s1   # ← タブ文字は不可</code></pre>
+
+<hr>
+
+<h2 id="s3">3. ページ全体のスキーマ概観</h2>
+
+<pre><code>---
+page:           # ページメタデータ（title, lang）
+  title: "..."
+  lang: ja
+
+nav:            # ナビゲーションバー
+  brand: "..."
+  brand_icon: ico-spark
+  links:        # ナビリンクの配列
+    - { href: "#s1", label: "戦略的意義" }
+
+hero:           # ページ冒頭の大見出しエリア
+  eyebrow: "..."
+  headline_md: |
+    ...
+  lede: "..."
+  meta: [...]
+  figure: [...]
+
+sections:       # 各章のコンテンツ（配列）
+  - id: s1
+    num: "01"
+    icon: ico-flag
+    title_md: |
+      ...
+    subtitle: "..."
+    blocks:     # ブロックの配列（次章で詳述）
+      - type: prose
+        md: "..."
+
+footer:         # フッター
+  left: "..."
+  right: "..."
+---</code></pre>
+
+<h3>各セクションの構成</h3>
+
+<table>
+<thead><tr><th>フィールド</th><th>必須</th><th>説明</th></tr></thead>
+<tbody>
+<tr><td><code>id</code></td><td>必須</td><td>セクションID。<code>#s1</code> 形式のアンカーリンクに使用。変更するとナビリンクが壊れる</td></tr>
+<tr><td><code>num</code></td><td>必須</td><td>章番号表示用（例: <code>"01"</code>）</td></tr>
+<tr><td><code>icon</code></td><td>必須</td><td>セクションアイコン名（例: <code>ico-flag</code>）</td></tr>
+<tr><td><code>title_md</code></td><td>必須</td><td>章タイトル。Markdown（<code>**bold**</code>, <code>*em*</code>）対応。二重改行で折り返し表示</td></tr>
+<tr><td><code>subtitle</code></td><td>必須</td><td>章サブタイトル（プレーンテキストのみ）</td></tr>
+<tr><td><code>blocks</code></td><td>必須</td><td>ブロックの配列。次章参照</td></tr>
+</tbody>
+</table>
+
+<hr>
+
+<h2 id="s4">4. ブロック種別リファレンス（19 種類すべて）</h2>
+
+<p>ブロックは <code>type</code> フィールドで種別を指定する。スペルミスや未定義の type を指定するとビルドエラーになる。</p>
+
+<h3>4.1 prose（通常段落）</h3>
+
+<h4>(a) YAML サンプル</h4>
+
+<pre><code>- type: prose
+  md: |
+    2026年現在、AI活用は**AIエージェント**へとシフトしています。
+
+    改行を1行空けると新しい段落になります。
+    ここは同じ段落内です。</code></pre>
+
+<h4>(b) フィールド一覧</h4>
+
+<table>
+<thead><tr><th>フィールド</th><th>必須/任意</th><th>型</th><th>説明</th><th>Markdown対応</th></tr></thead>
+<tbody>
+<tr><td><code>md</code></td><td>必須</td><td>文字列（ブロックスカラ推奨）</td><td>段落テキスト。複数段落可</td><td>あり（<code>**bold**</code>, <code>*em*</code>, <code>`code`</code>, リスト <code>- item</code>, リンク）</td></tr>
+</tbody>
+</table>
+
+<h4>(c) 使いどころ</h4>
+<p>本文の説明文。1段落でも複数段落でも使える。Markdown記法が最も自由に使えるブロック。</p>
+
+<hr>
+
+<h3>4.2 h3（中見出し）</h3>
+
+<h4>(a) YAML サンプル</h4>
+
+<pre><code>- type: h3
+  text: "概念の定義：プロンプトから「知的資産（IP）」へ"</code></pre>
+
+<h4>(b) フィールド一覧</h4>
+
+<table>
+<thead><tr><th>フィールド</th><th>必須/任意</th><th>型</th><th>説明</th><th>Markdown対応</th></tr></thead>
+<tbody>
+<tr><td><code>text</code></td><td>必須</td><td>文字列</td><td>見出しテキスト</td><td>なし（プレーンテキスト）</td></tr>
+</tbody>
+</table>
+
+<h4>(c) 使いどころ</h4>
+<p>セクション内の小タイトル。<code>prose</code> や他ブロックの前に置いてグループ化する。</p>
+
+<hr>
+
+<h3>4.3 h4（小見出し）</h3>
+
+<h4>(a) YAML サンプル</h4>
+
+<pre><code>- type: h4
+  text: "補足: トークン消費の最適化"</code></pre>
+
+<h4>(b) フィールド一覧</h4>
+
+<table>
+<thead><tr><th>フィールド</th><th>必須/任意</th><th>型</th><th>説明</th><th>Markdown対応</th></tr></thead>
+<tbody>
+<tr><td><code>text</code></td><td>必須</td><td>文字列</td><td>見出しテキスト（モノスペースフォント）</td><td>なし（プレーンテキスト）</td></tr>
+</tbody>
+</table>
+
+<h4>(c) 使いどころ</h4>
+<p><code>h3</code> より細かい補足見出し。コード的なラベルや技術的補足に向く。</p>
+
+<hr>
+
+<h3>4.4 pull（引用ブロック）</h3>
+
+<h4>(a) YAML サンプル</h4>
+
+<pre><code>- type: pull
+  body_md: 'Skillsは一度作って終わりではなく、「使いながら育てる資産」である。担当者が離れても、業務の"やり方"が組織に残り続ける。'
+  cite: "—— 戦略的ベネフィットの本質"</code></pre>
+
+<h4>(b) フィールド一覧</h4>
+
+<table>
+<thead><tr><th>フィールド</th><th>必須/任意</th><th>型</th><th>説明</th><th>Markdown対応</th></tr></thead>
+<tbody>
+<tr><td><code>body_md</code></td><td>必須</td><td>文字列</td><td>引用本文</td><td>あり（インライン: <code>**bold**</code>, <code>*em*</code>, <code>`code`</code>）</td></tr>
+<tr><td><code>cite</code></td><td>必須</td><td>文字列</td><td>出典・署名</td><td>なし（プレーンテキスト）</td></tr>
+</tbody>
+</table>
+
+<h4>(c) 使いどころ</h4>
+<p>重要なメッセージや名言を視覚的に強調する。セクションの締めや中盤のアクセントに。</p>
+
+<hr>
+
+<h3>4.5 stats（統計カード）</h3>
+
+<h4>(a) YAML サンプル</h4>
+
+<pre><code>- type: stats
+  items:
+    - org: "チューリング社"
+      org_icon: ico-team
+      before: "8部門"
+      after: "1人"
+      label_md: "わずか2週間で **8部門・32人分** に相当する仮想PRチームを構築。"
+    - org: "Anthropic社"
+      org_icon: ico-bolt
+      before: "5–10時間"
+      after: "30分"
+      label_md: "マーケのローンチブリーフ作成を **5〜10時間 → 30分** へ短縮。"</code></pre>
+
+<h4>(b) フィールド一覧</h4>
+
+<table>
+<thead><tr><th>フィールド</th><th>必須/任意</th><th>型</th><th>説明</th><th>Markdown対応</th></tr></thead>
+<tbody>
+<tr><td><code>items</code></td><td>必須</td><td>配列</td><td>カードの配列</td><td>-</td></tr>
+<tr><td><code>items[].org</code></td><td>必須</td><td>文字列</td><td>組織・会社名</td><td>なし</td></tr>
+<tr><td><code>items[].org_icon</code></td><td>必須</td><td>文字列</td><td>アイコン名（<code>ico-xxx</code>）</td><td>なし</td></tr>
+<tr><td><code>items[].before</code></td><td>必須</td><td>文字列</td><td>導入前の値（例: <code>"5–10時間"</code>）</td><td>なし</td></tr>
+<tr><td><code>items[].after</code></td><td>必須</td><td>文字列</td><td>導入後の値（例: <code>"30分"</code>）</td><td>なし</td></tr>
+<tr><td><code>items[].label_md</code></td><td>必須</td><td>文字列</td><td>カード下部の説明文</td><td>あり（インライン）</td></tr>
+</tbody>
+</table>
+
+<h4>(c) 使いどころ</h4>
+<p>Before/After の数値的成果を並べて見せるカード群。実績・ROI の訴求に最適。</p>
+
+<hr>
+
+<h3>4.6 table（汎用表）</h3>
+
+<h4>(a) YAML サンプル</h4>
+
+<pre><code>- type: table
+  caption: "表のタイトル（省略可）"
+  headers: ["機能", "役割", "読み込みタイミング", "主な用途"]
+  rows:
+    - ["CLAUDE.md", "常時適用される全体ルール", "毎セッション自動", "トーン&amp;マナー"]
+    - ["Skills", "特定タスク固有の指示", "呼び出し時のみ", "月次決算、分析"]</code></pre>
+
+<h4>(b) フィールド一覧</h4>
+
+<table>
+<thead><tr><th>フィールド</th><th>必須/任意</th><th>型</th><th>説明</th><th>Markdown対応</th></tr></thead>
+<tbody>
+<tr><td><code>caption</code></td><td>任意</td><td>文字列</td><td>表の上部に表示するタイトル</td><td>なし</td></tr>
+<tr><td><code>headers</code></td><td>必須</td><td>文字列の配列</td><td>ヘッダー行</td><td>なし</td></tr>
+<tr><td><code>rows</code></td><td>必須</td><td>配列の配列</td><td>データ行（各行は文字列の配列）</td><td>第2列以降：あり（インライン）</td></tr>
+</tbody>
+</table>
+
+<p>注意: 各行の<strong>第1列</strong>はキー列（<code>class="key"</code>）でプレーンテキスト。第2列以降は Markdown 変換される。</p>
+
+<h4>(c) 使いどころ</h4>
+<p>機能比較・コマンド一覧など、表形式で整理できるデータ全般。</p>
+
+<hr>
+
+<h3>4.7 impact-table（Before/After 比較表）</h3>
+
+<h4>(a) YAML サンプル</h4>
+
+<pre><code>- type: impact-table
+  caption: "BEFORE / AFTER ─ 主要業務における処理時間の変化"
+  headers: ["業務内容", "従来（手動）", "Skills 活用後", "変化量"]
+  rows:
+    - ["広告分析・KPI レポート", "3〜5 時間", "約 7 分", "最大 −97%"]
+    - ["ローンチブリーフ作成", "5〜10 時間", "30 分", "最大 −95%"]</code></pre>
+
+<h4>(b) フィールド一覧</h4>
+
+<table>
+<thead><tr><th>フィールド</th><th>必須/任意</th><th>型</th><th>説明</th><th>Markdown対応</th></tr></thead>
+<tbody>
+<tr><td><code>caption</code></td><td>任意</td><td>文字列</td><td>表タイトル</td><td>なし</td></tr>
+<tr><td><code>headers</code></td><td>必須</td><td>文字列の配列</td><td>4列ヘッダー（業務内容 / 従来 / 活用後 / 変化量）</td><td>なし</td></tr>
+<tr><td><code>rows</code></td><td>必須</td><td>配列の配列</td><td>データ行。各行は必ず <strong>4要素</strong> の配列</td><td>なし（全列プレーンテキスト）</td></tr>
+</tbody>
+</table>
+
+<p>注意: 列数は固定で4列。<code>table</code> と異なり特殊スタイル（before列グレー、after列強調、delta列アクセント）が適用される。</p>
+
+<h4>(c) 使いどころ</h4>
+<p>時間削減・コスト削減などの導入効果を視覚的に強調する表。ROI訴求のクライマックスに。</p>
+
+<hr>
+
+<h3>4.8 layers（3層構造図）</h3>
+
+<h4>(a) YAML サンプル</h4>
+
+<pre><code>- type: layers
+  items:
+    - num: "L1"
+      title: "メタデータ（YAMLフロントマター）"
+      body: "SKILL.mdの冒頭に記述。Claudeが「いつ起動すべきか」を判断するトリガー。"
+      side: "TRIGGER\n軽量・常時参照"
+    - num: "L2"
+      title: "指示本文（Workflow）"
+      body: "業務の具体的なステップバイステップを記述する中核部分。"
+      side: "INSTRUCTION\n呼び出し時のみ"
+    - num: "L3"
+      title: "参照ファイル（References）"
+      body: "スタイルガイド等の「静的知識」。指示本文から分離して管理する。"
+      side: "KNOWLEDGE\n必要時に展開"</code></pre>
+
+<h4>(b) フィールド一覧</h4>
+
+<table>
+<thead><tr><th>フィールド</th><th>必須/任意</th><th>型</th><th>説明</th><th>Markdown対応</th></tr></thead>
+<tbody>
+<tr><td><code>items</code></td><td>必須</td><td>配列</td><td>層の配列（通常3要素）</td><td>-</td></tr>
+<tr><td><code>items[].num</code></td><td>必須</td><td>文字列</td><td>層番号ラベル（例: <code>"L1"</code>）</td><td>なし</td></tr>
+<tr><td><code>items[].title</code></td><td>必須</td><td>文字列</td><td>層タイトル</td><td>なし</td></tr>
+<tr><td><code>items[].body</code></td><td>必須</td><td>文字列</td><td>層の説明文</td><td>なし</td></tr>
+<tr><td><code>items[].side</code></td><td>必須</td><td>文字列</td><td>右端のラベル。<code>\n</code> で改行可</td><td>なし</td></tr>
+</tbody>
+</table>
+
+<h4>(c) 使いどころ</h4>
+<p>階層構造・レイヤー構造を視覚的に表現する。3層固定ではなく任意の数の層を並べられる。</p>
+
+<hr>
+
+<h3>4.9 kitchen（キッチンアナロジー）</h3>
+
+<h4>(a) YAML サンプル</h4>
+
+<pre><code>- type: kitchen
+  items:
+    - icon: ico-kitchen
+      title: "MCP（Model Context Protocol）"
+      tag: "TOOLS"
+      body_md: "プロ仕様の**キッチン**。道具・API連携など、AIが外部世界とつながるための機構。"
+    - icon: ico-recipe
+      title: "Skills"
+      tag: "RECIPE"
+      body_md: "**レシピ（手順書）**。複数の道具をどの順序で使うかを「オーケストレーション」する知的資産。"</code></pre>
+
+<h4>(b) フィールド一覧</h4>
+
+<table>
+<thead><tr><th>フィールド</th><th>必須/任意</th><th>型</th><th>説明</th><th>Markdown対応</th></tr></thead>
+<tbody>
+<tr><td><code>items</code></td><td>必須</td><td>配列</td><td>カードの配列（通常2要素）</td><td>-</td></tr>
+<tr><td><code>items[].icon</code></td><td>必須</td><td>文字列</td><td>アイコン名（<code>ico-xxx</code>）</td><td>なし</td></tr>
+<tr><td><code>items[].title</code></td><td>必須</td><td>文字列</td><td>カードタイトル</td><td>なし</td></tr>
+<tr><td><code>items[].tag</code></td><td>必須</td><td>文字列</td><td>タグラベル（例: <code>"TOOLS"</code>, <code>"RECIPE"</code>）</td><td>なし</td></tr>
+<tr><td><code>items[].body_md</code></td><td>必須</td><td>文字列</td><td>説明文</td><td>あり（インライン）</td></tr>
+</tbody>
+</table>
+
+<h4>(c) 使いどころ</h4>
+<p>2つの概念を対比・対応付けして見せるカードペア。アナロジーや対比の説明に。</p>
+
+<hr>
+
+<h3>4.10 cats（カテゴリーカード）</h3>
+
+<h4>(a) YAML サンプル</h4>
+
+<pre><code>- type: cats
+  items:
+    - icon: ico-doc
+      title: "定型アセット生成"
+      body: "同じ構造のドキュメントを繰り返し作成する業務。フォーマットが安定しているほど効果が高い。"
+      ex: "EX. 月次レポート ／ 週報 ／ SNS投稿案"
+    - icon: ico-route
+      title: "マルチステップ・ワークフロー"
+      body: "複数のツールを跨ぐ連続プロセス。順序と判断分岐を明文化できる業務。"
+      ex: "EX. 調査 → 分析 → 執筆 → レビュー"</code></pre>
+
+<h4>(b) フィールド一覧</h4>
+
+<table>
+<thead><tr><th>フィールド</th><th>必須/任意</th><th>型</th><th>説明</th><th>Markdown対応</th></tr></thead>
+<tbody>
+<tr><td><code>items</code></td><td>必須</td><td>配列</td><td>カードの配列</td><td>-</td></tr>
+<tr><td><code>items[].icon</code></td><td>必須</td><td>文字列</td><td>アイコン名</td><td>なし</td></tr>
+<tr><td><code>items[].title</code></td><td>必須</td><td>文字列</td><td>カードタイトル</td><td>なし</td></tr>
+<tr><td><code>items[].body</code></td><td>必須</td><td>文字列</td><td>説明本文</td><td>なし</td></tr>
+<tr><td><code>items[].ex</code></td><td>必須</td><td>文字列</td><td>具体例（<code>EX. ...</code> 形式推奨）</td><td>なし</td></tr>
+</tbody>
+</table>
+
+<h4>(c) 使いどころ</h4>
+<p>カテゴリーの列挙・分類の提示。3枚並べて使うことが多い。</p>
+
+<hr>
+
+<h3>4.11 matrix（2×2 マトリクス）</h3>
+
+<h4>(a) YAML サンプル</h4>
+
+<pre><code>- type: matrix
+  y_label: "複雑性 ／ COMPLEXITY"
+  x_labels:
+    left: "← 頻度：低"
+    right: "頻度：高 →"
+  cells:
+    - level: "優先度：中"
+      hi: false
+      title: "複雑だが、頻度は低い"
+      body: "年次の戦略立案など。価値は高いが頻度が少ないため、一度パッケージ化して残す対象。"
+    - level: "優先度：高 ★"
+      hi: true
+      title: "頻度が高く、複雑性も高い"
+      body: "毎週の財務分析、複数部門のKPI集計。Skills化のROIが最も大きい領域。"
+    - level: "優先度：低"
+      hi: false
+      title: "単発で、シンプル"
+      body: "単発のアイデア出し。通常のチャット利用で十分。"
+    - level: "優先度：中"
+      hi: false
+      title: "頻度は高いが、シンプル"
+      body: "定型フォーマットへのデータ転記。CLAUDE.mdレベルの共通ルールで十分なケースが多い。"</code></pre>
+
+<h4>(b) フィールド一覧</h4>
+
+<table>
+<thead><tr><th>フィールド</th><th>必須/任意</th><th>型</th><th>説明</th><th>Markdown対応</th></tr></thead>
+<tbody>
+<tr><td><code>y_label</code></td><td>必須</td><td>文字列</td><td>Y軸ラベル（縦軸）</td><td>なし</td></tr>
+<tr><td><code>x_labels.left</code></td><td>必須</td><td>文字列</td><td>X軸左端ラベル</td><td>なし</td></tr>
+<tr><td><code>x_labels.right</code></td><td>必須</td><td>文字列</td><td>X軸右端ラベル</td><td>なし</td></tr>
+<tr><td><code>cells</code></td><td>必須</td><td>配列</td><td>セルの配列。<strong>必ず4要素</strong>（左上→右上→左下→右下の順）</td><td>-</td></tr>
+<tr><td><code>cells[].level</code></td><td>必須</td><td>文字列</td><td>優先度ラベル</td><td>なし</td></tr>
+<tr><td><code>cells[].hi</code></td><td>必須</td><td>真偽値</td><td><code>true</code> でハイライト（目立つスタイル）</td><td>-</td></tr>
+<tr><td><code>cells[].title</code></td><td>必須</td><td>文字列</td><td>セルタイトル</td><td>なし</td></tr>
+<tr><td><code>cells[].body</code></td><td>必須</td><td>文字列</td><td>セル説明文</td><td>なし</td></tr>
+</tbody>
+</table>
+
+<p>注意: <code>cells</code> の順序は「左上 → 右上 → 左下 → 右下」の順で配置される。</p>
+
+<h4>(c) 使いどころ</h4>
+<p>優先度マップ・評価軸の可視化。2軸で4象限に分類する説明に。</p>
+
+<hr>
+
+<h3>4.12 steps（ステップ図）</h3>
+
+<h4>(a) YAML サンプル</h4>
+
+<pre><code>- type: steps
+  items:
+    - n: "STEP 01"
+      icon: ico-target
+      title: "要件定義"
+      body_md: "「何を達成したいか」「入力データは何か」を明確化。出力フォーマットも先に決める。"
+    - n: "STEP 02"
+      icon: ico-feather
+      title: "実装（自動生成）"
+      body_md: "Claudeに一度作業をさせ、完了後に「**今やった作業をスキルにして**」と頼む。"</code></pre>
+
+<h4>(b) フィールド一覧</h4>
+
+<table>
+<thead><tr><th>フィールド</th><th>必須/任意</th><th>型</th><th>説明</th><th>Markdown対応</th></tr></thead>
+<tbody>
+<tr><td><code>items</code></td><td>必須</td><td>配列</td><td>ステップの配列</td><td>-</td></tr>
+<tr><td><code>items[].n</code></td><td>必須</td><td>文字列</td><td>ステップ番号ラベル（例: <code>"STEP 01"</code>）</td><td>なし</td></tr>
+<tr><td><code>items[].icon</code></td><td>必須</td><td>文字列</td><td>アイコン名</td><td>なし</td></tr>
+<tr><td><code>items[].title</code></td><td>必須</td><td>文字列</td><td>ステップタイトル</td><td>なし</td></tr>
+<tr><td><code>items[].body_md</code></td><td>必須</td><td>文字列</td><td>ステップ説明文</td><td>あり（インライン）</td></tr>
+</tbody>
+</table>
+
+<h4>(c) 使いどころ</h4>
+<p>手順・プロセスを順番に並べる。4ステップで使うことが多いが、任意の数に対応。</p>
+
+<hr>
+
+<h3>4.13 dbs（DBSフレームワークカード）</h3>
+
+<h4>(a) YAML サンプル</h4>
+
+<pre><code>- type: dbs
+  items:
+    - letter: "D"
+      name: "DIRECTION"
+      title: "指示"
+      body_md: "SKILL.md に書かれた手順とルール。業務フローの骨格となる中核ドキュメント。"
+    - letter: "B"
+      name: "BLUEPRINTS"
+      title: "参照"
+      body_md: "`references/` フォルダに置くスタイルガイド等の背景知識。"
+    - letter: "S"
+      name: "SOLUTIONS"
+      title: "スクリプト"
+      body_md: "計算やファイル操作用のコード。自動生成・配置される。"</code></pre>
+
+<h4>(b) フィールド一覧</h4>
+
+<table>
+<thead><tr><th>フィールド</th><th>必須/任意</th><th>型</th><th>説明</th><th>Markdown対応</th></tr></thead>
+<tbody>
+<tr><td><code>items</code></td><td>必須</td><td>配列</td><td>カードの配列（通常3要素）</td><td>-</td></tr>
+<tr><td><code>items[].letter</code></td><td>必須</td><td>文字列</td><td>大文字アルファベット1文字（例: <code>"D"</code>）</td><td>なし</td></tr>
+<tr><td><code>items[].name</code></td><td>必須</td><td>文字列</td><td>英語名（例: <code>"DIRECTION"</code>）</td><td>なし</td></tr>
+<tr><td><code>items[].title</code></td><td>必須</td><td>文字列</td><td>日本語タイトル</td><td>なし</td></tr>
+<tr><td><code>items[].body_md</code></td><td>必須</td><td>文字列</td><td>説明文</td><td>あり（インライン）</td></tr>
+</tbody>
+</table>
+
+<h4>(c) 使いどころ</h4>
+<p>頭文字略語のフレームワーク（DBS, ABC など）を3つのカードで解説する。</p>
+
+<hr>
+
+<h3>4.14 codeblock（コードブロック）</h3>
+
+<h4>(a) YAML サンプル</h4>
+
+<pre><code>- type: codeblock
+  lines:
+    - { kind: c, text: "## ~/.claude/skills/financial-report/SKILL.md" }
+    - { kind: k, text: "---" }
+    - { kind: k, text: "name:" }
+    - { kind: text, text: " financial-report" }
+    - { kind: k, text: "description:" }
+    - { kind: text, text: " 月次の財務データを読み込み、経営報告書を生成" }
+    - { kind: k, text: "---" }
+    - { kind: text, text: "" }
+    - { kind: c, text: "# Workflow" }
+    - { kind: text, text: "1. 指定CSVを読み込み、前月比・前年比を計算する" }</code></pre>
+
+<h4>(b) フィールド一覧</h4>
+
+<table>
+<thead><tr><th>フィールド</th><th>必須/任意</th><th>型</th><th>説明</th><th>Markdown対応</th></tr></thead>
+<tbody>
+<tr><td><code>lines</code></td><td>必須</td><td>配列</td><td>行の配列</td><td>-</td></tr>
+<tr><td><code>lines[].kind</code></td><td>任意</td><td>文字列</td><td>構文ハイライト種別（<code>c</code>=コメント, <code>k</code>=キーワード, <code>s</code>=文字列/パス, <code>text</code>=通常 / 省略時はプレーンテキスト）</td><td>なし</td></tr>
+<tr><td><code>lines[].text</code></td><td>必須</td><td>文字列</td><td>行のテキスト。空文字 <code>""</code> で空行</td><td>なし</td></tr>
+</tbody>
+</table>
+
+<p><strong>kind の種別:</strong></p>
+
+<table>
+<thead><tr><th>kind</th><th>意味</th><th>表示色のイメージ</th></tr></thead>
+<tbody>
+<tr><td><code>c</code></td><td>コメント</td><td>グレー</td></tr>
+<tr><td><code>k</code></td><td>キーワード（YAMLキーなど）</td><td>緑系</td></tr>
+<tr><td><code>s</code></td><td>文字列・パス</td><td>黄色系</td></tr>
+<tr><td><code>text</code></td><td>通常テキスト</td><td>白</td></tr>
+<tr><td>（省略）</td><td>プレーンテキスト</td><td>白</td></tr>
+</tbody>
+</table>
+
+<h4>(c) 使いどころ</h4>
+<p>ダーク背景でコードやコマンドを表示する。YAML、シェルコマンド、設定ファイルの例示に。</p>
+
+<hr>
+
+<h3>4.15 usecases（ユースケースカード）</h3>
+
+<h4>(a) YAML サンプル</h4>
+
+<pre><code>- type: usecases
+  items:
+    - icon: ico-chart
+      title: "CRM／SFA 分析スキル"
+      body: "SalesforceやBigQueryのデータから「受注確度」を4段階で評価。確度向上のための具体的アクションプランを Word 文書で出力する。"
+      meta_left: "SALES OPS"
+      meta_right: "OUTPUT: .docx"
+    - icon: ico-shield
+      title: "コンプライアンス・チェック"
+      body: "広告物や投資提案書が法令に合致しているかを自動点検。70〜100項目を数分で完遂する。"
+      meta_left: "COMPLIANCE"
+      meta_right: "ITEMS: 70–100"</code></pre>
+
+<h4>(b) フィールド一覧</h4>
+
+<table>
+<thead><tr><th>フィールド</th><th>必須/任意</th><th>型</th><th>説明</th><th>Markdown対応</th></tr></thead>
+<tbody>
+<tr><td><code>items</code></td><td>必須</td><td>配列</td><td>カードの配列</td><td>-</td></tr>
+<tr><td><code>items[].icon</code></td><td>必須</td><td>文字列</td><td>アイコン名</td><td>なし</td></tr>
+<tr><td><code>items[].title</code></td><td>必須</td><td>文字列</td><td>ユースケース名</td><td>なし</td></tr>
+<tr><td><code>items[].body</code></td><td>必須</td><td>文字列</td><td>説明文</td><td>なし</td></tr>
+<tr><td><code>items[].meta_left</code></td><td>必須</td><td>文字列</td><td>左下のメタラベル（部署名等）</td><td>なし</td></tr>
+<tr><td><code>items[].meta_right</code></td><td>必須</td><td>文字列</td><td>右下のメタラベル（出力形式・件数等）</td><td>なし</td></tr>
+</tbody>
+</table>
+
+<h4>(c) 使いどころ</h4>
+<p>具体的なユースケースをカード形式で並べる。業界別・機能別の活用例の紹介に。</p>
+
+<hr>
+
+<h3>4.16 pitfalls（落とし穴カード）</h3>
+
+<h4>(a) YAML サンプル</h4>
+
+<pre><code>- type: pitfalls
+  items:
+    - n: "01"
+      title: "指示の詰め込みすぎ"
+      body_md: "1スキルで全業務をやらせると精度が落ちる。「1スキル1タスク」に分割し、必要なら複数のスキルを連携させる。"
+    - n: "02"
+      title: "不適切な Description"
+      body_md: "曖昧な説明は誤発動の原因。「**いつ使うか**」を具体的に記述し、トリガー語を明確にする。"</code></pre>
+
+<h4>(b) フィールド一覧</h4>
+
+<table>
+<thead><tr><th>フィールド</th><th>必須/任意</th><th>型</th><th>説明</th><th>Markdown対応</th></tr></thead>
+<tbody>
+<tr><td><code>items</code></td><td>必須</td><td>配列</td><td>項目の配列</td><td>-</td></tr>
+<tr><td><code>items[].n</code></td><td>必須</td><td>文字列</td><td>番号ラベル（例: <code>"01"</code>）</td><td>なし</td></tr>
+<tr><td><code>items[].title</code></td><td>必須</td><td>文字列</td><td>失敗パターンのタイトル</td><td>なし</td></tr>
+<tr><td><code>items[].body_md</code></td><td>必須</td><td>文字列</td><td>説明と対策</td><td>あり（インライン）</td></tr>
+</tbody>
+</table>
+
+<h4>(c) 使いどころ</h4>
+<p>番号付きの注意点・失敗パターン・アンチパターンのリスト。まとめ・リスク管理セクションに。</p>
+
+<hr>
+
+<h3>4.17 warn（警告ボックス）</h3>
+
+<h4>(a) YAML サンプル</h4>
+
+<pre><code>- type: warn
+  icon: ico-alert
+  title: "技術的制約の遵守"
+  body_md: |
+    - ファイルパス：個人用なら `~/.claude/skills/`、プロジェクト用なら `.claude/skills/`
+    - 命名規則：`kebab-case` を使用。スペース・大文字・アンダースコアは禁止
+    - YAML制限：`description` 内に XMLタグを使用してはいけない</code></pre>
+
+<h4>(b) フィールド一覧</h4>
+
+<table>
+<thead><tr><th>フィールド</th><th>必須/任意</th><th>型</th><th>説明</th><th>Markdown対応</th></tr></thead>
+<tbody>
+<tr><td><code>icon</code></td><td>必須</td><td>文字列</td><td>アイコン名（<code>ico-alert</code>, <code>ico-lock</code> 等）</td><td>なし</td></tr>
+<tr><td><code>title</code></td><td>必須</td><td>文字列</td><td>警告タイトル</td><td>なし</td></tr>
+<tr><td><code>body_md</code></td><td>必須</td><td>文字列</td><td>警告内容。リスト形式も使える</td><td>あり（ブロック: <code>mdBlock</code>。リスト <code>- item</code> も使用可）</td></tr>
+</tbody>
+</table>
+
+<h4>(c) 使いどころ</h4>
+<p>注意事項・禁止事項・重要な制約をハイライト表示する。セクション中のどこでも使える。</p>
+
+<hr>
+
+<h3>4.18 checklist（チェックリスト）</h3>
+
+<h4>(a) YAML サンプル</h4>
+
+<pre><code>- type: checklist
+  title: "最終確認チェックリスト"
+  items_md:
+    - "「1スキル＝1タスク」の粒度に保たれているか"
+    - "Description は *「いつ使うか」* が具体的に記述されているか"
+    - "`/context` でトークン消費が許容範囲内か"
+    - "外部公開スキルを利用する場合、SKILL.md を目視確認したか"</code></pre>
+
+<h4>(b) フィールド一覧</h4>
+
+<table>
+<thead><tr><th>フィールド</th><th>必須/任意</th><th>型</th><th>説明</th><th>Markdown対応</th></tr></thead>
+<tbody>
+<tr><td><code>title</code></td><td>必須</td><td>文字列</td><td>チェックリストのタイトル</td><td>なし</td></tr>
+<tr><td><code>items_md</code></td><td>必須</td><td>文字列の配列</td><td>チェック項目の配列</td><td>あり（インライン: 各項目に <code>**bold**</code>, <code>*em*</code>, <code>`code`</code> 使用可）</td></tr>
+</tbody>
+</table>
+
+<h4>(c) 使いどころ</h4>
+<p>確認事項・要件のリスト。チェックアイコン付きで視覚的に整理されて表示される。</p>
+
+<hr>
+
+<h3>4.19 cta（コールトゥアクション）</h3>
+
+<h4>(a) YAML サンプル</h4>
+
+<pre><code>- type: cta
+  title: "最初の一歩は、たった一つの繰り返しタスクから。"
+  body: "Skillsは、AIを「便利なチャット」から「頼れる自律的なチーム」へと変えるための知的資産です。まずは今日、1つの繰り返しタスクを特定し、Claudeに「今やったことをスキルにして」と伝えてください。"
+  button_label: "構築プロセスを読む"
+  button_href: "#s4"</code></pre>
+
+<h4>(b) フィールド一覧</h4>
+
+<table>
+<thead><tr><th>フィールド</th><th>必須/任意</th><th>型</th><th>説明</th><th>Markdown対応</th></tr></thead>
+<tbody>
+<tr><td><code>title</code></td><td>必須</td><td>文字列</td><td>CTAの大見出し</td><td>なし</td></tr>
+<tr><td><code>body</code></td><td>必須</td><td>文字列</td><td>説明文</td><td>なし</td></tr>
+<tr><td><code>button_label</code></td><td>必須</td><td>文字列</td><td>ボタンのテキスト</td><td>なし</td></tr>
+<tr><td><code>button_href</code></td><td>必須</td><td>文字列</td><td>ボタンのリンク先。ページ内アンカー（<code>#s4</code>）または外部URL</td><td>なし</td></tr>
+</tbody>
+</table>
+
+<h4>(c) 使いどころ</h4>
+<p>ページやセクションの締め。読者に次のアクションを促す大型のボタン付きブロック。</p>
+
+<hr>
+
+<h2 id="s5">5. Markdown 記法の対応範囲</h2>
+
+<h3>ヘルパー別の対応範囲</h3>
+
+<table>
+<thead><tr><th>ヘルパー</th><th>使用フィールド</th><th>対応する記法</th></tr></thead>
+<tbody>
+<tr><td><code>md</code>（インライン）</td><td><code>body_md</code>, <code>label_md</code>, <code>items_md[]</code>, <code>cite</code> の除く大部分</td><td><code>**bold**</code>, <code>*em*</code>, <code>`code`</code>, <code>[text](url)</code></td></tr>
+<tr><td><code>mdBlock</code>（ブロック）</td><td><code>prose.md</code>, <code>warn.body_md</code></td><td><code>md</code> の全記法 + 段落 <code>&lt;p&gt;</code>, リスト <code>- item</code>, <code>1. item</code></td></tr>
+<tr><td><code>mdHead</code>（見出し用）</td><td><code>hero.headline_md</code>, <code>section.title_md</code></td><td><code>**bold**</code>, <code>*em*</code>, 二重改行 → <code>&lt;br/&gt;</code></td></tr>
+</tbody>
+</table>
+
+<h3>日本語との隣接での注意</h3>
+
+<p><code>**太字**</code> や <code>*斜体*</code> は日本語との隣接でも正常に変換される（正規表現前処理を実装済み）。</p>
+
+<pre><code># OK: 日本語に隣接してもボールドになる
+label_md: "わずか2週間で **8部門・32人分** に相当する仮想PRチームを構築。"
+
+# OK: 日本語に隣接してもイタリックになる
+md: "Skillsは「使いながら *育てる資産* 」である。"</code></pre>
+
+<h3>Markdown 非対応フィールド一覧</h3>
+
+<p>以下のフィールドはプレーンテキストのみ。<code>**bold**</code> と書いても変換されず、アスタリスクがそのまま表示される。</p>
+
+<table>
+<thead><tr><th>セクション</th><th>非対応フィールド</th></tr></thead>
+<tbody>
+<tr><td><code>nav</code></td><td><code>nav.links[].label</code></td></tr>
+<tr><td><code>hero</code></td><td><code>hero.eyebrow</code>, <code>hero.lede</code>, <code>hero.meta[].label</code>, <code>hero.figure[].key/value/unit/caption</code></td></tr>
+<tr><td><code>section</code></td><td><code>section.subtitle</code>, <code>section.num</code>, <code>section.icon</code></td></tr>
+<tr><td><code>h3</code></td><td><code>h3.text</code></td></tr>
+<tr><td><code>h4</code></td><td><code>h4.text</code></td></tr>
+<tr><td><code>layers</code></td><td><code>layers.items[].title/body/side</code></td></tr>
+<tr><td><code>cats</code></td><td><code>cats.items[].title/body/ex</code></td></tr>
+<tr><td><code>usecases</code></td><td><code>usecases.items[].title/body/meta_left/meta_right</code></td></tr>
+<tr><td><code>dbs</code></td><td><code>dbs.items[].letter/name/title</code></td></tr>
+<tr><td><code>matrix</code></td><td><code>matrix.cells[].title/body</code>, <code>matrix.y_label/x_labels</code></td></tr>
+<tr><td><code>codeblock</code></td><td><code>codeblock.lines[].text</code></td></tr>
+<tr><td><code>pitfalls</code></td><td><code>pitfalls.items[].title</code></td></tr>
+<tr><td><code>cta</code></td><td><code>cta.title/body/button_label/button_href</code></td></tr>
+<tr><td><code>footer</code></td><td><code>footer.left/right</code></td></tr>
+</tbody>
+</table>
+
+<p><strong>覚え方</strong>: <code>_md</code> サフィックスが付いているフィールドは Markdown 対応。それ以外はプレーンテキスト。</p>
+
+<hr>
+
+<h2 id="s6">6. 編集ケーススタディ（実践例 5 件）</h2>
+
+<h3>ケース 1: ヒーローの数値を変える</h3>
+
+<p><strong>シナリオ</strong>: 「日本企業のAI導入率」が更新された。<code>55.2%</code> → <code>60.5%</code> に変更する。</p>
+
+<pre><code># 変更前
+figure:
+  - { key: "日本企業のAI導入率", value: "55.2", unit: "%", caption: "営業資料作成・顧客対応にAIを導入" }
+
+# 変更後
+figure:
+  - { key: "日本企業のAI導入率", value: "60.5", unit: "%", caption: "営業資料作成・顧客対応にAIを導入" }</code></pre>
+
+<p><code>value</code> フィールドは数値でも文字列（クォートあり）でも問題ない。<code>unit</code> や <code>caption</code> も同様に変更できる。</p>
+
+<hr>
+
+<h3>ケース 2: ナビにリンクを追加</h3>
+
+<p><strong>シナリオ</strong>: 新しいセクション <code>#s7</code> を追加し、ナビにリンクを追加する。</p>
+
+<pre><code># 変更前
+nav:
+  links:
+    - { href: "#s6", label: "リスク管理" }
+
+# 変更後（末尾に追加）
+nav:
+  links:
+    - { href: "#s6", label: "リスク管理" }
+    - { href: "#s7", label: "Q&amp;A" }</code></pre>
+
+<p>注意: <code>href</code> の <code>#s7</code> は <code>sections[].id: s7</code> と一致させること。</p>
+
+<hr>
+
+<h3>ケース 3: prose 段落を新規追加</h3>
+
+<p><strong>シナリオ</strong>: セクション s1 の既存ブロックの後に、補足段落を追加する。</p>
+
+<pre><code># 変更前（既存のセクション末尾）
+    blocks:
+      - type: stats
+        items:
+          - org: "チューリング社"
+            ...
+
+# 変更後（prose を末尾に追加）
+    blocks:
+      - type: stats
+        items:
+          - org: "チューリング社"
+            ...
+      - type: prose
+        md: |
+          ※ 上記数値はAnthropic／Rimo／チューリング社の公開事例を基にした参考値です。実際の効果は業務特性により変動します。</code></pre>
+
+<p>インデントに注意: <code>- type: prose</code> は <code>- type: stats</code> と同じ深さ（スペース6個）にそろえる。</p>
+
+<hr>
+
+<h3>ケース 4: stats カードを追加</h3>
+
+<p><strong>シナリオ</strong>: 既存の stats ブロックに4枚目のカードを追加する。</p>
+
+<pre><code># 変更前
+- type: stats
+  items:
+    - org: "Rimo社"
+      org_icon: ico-chart
+      before: "3–5時間"
+      after: "7分"
+      label_md: "広告分析レポート作成を **従来3〜5時間 → 約7分** で完了。"
+
+# 変更後（末尾に追加）
+- type: stats
+  items:
+    - org: "Rimo社"
+      org_icon: ico-chart
+      before: "3–5時間"
+      after: "7分"
+      label_md: "広告分析レポート作成を **従来3〜5時間 → 約7分** で完了。"
+    - org: "新規事例社"
+      org_icon: ico-folder
+      before: "2時間"
+      after: "10分"
+      label_md: "週次レポート作成を **2時間 → 10分** に短縮。"</code></pre>
+
+<hr>
+
+<h3>ケース 5: 表に行を追加</h3>
+
+<p><strong>シナリオ</strong>: <code>impact-table</code> ブロックの行を1つ追加する。</p>
+
+<pre><code># 変更前
+- type: impact-table
+  caption: "BEFORE / AFTER ─ 主要業務における処理時間の変化"
+  headers: ["業務内容", "従来（手動）", "Skills 活用後", "変化量"]
+  rows:
+    - ["広告制作（クリエイティブ）", "30 分", "30 秒", "−98%"]
+
+# 変更後（末尾に追加）
+- type: impact-table
+  caption: "BEFORE / AFTER ─ 主要業務における処理時間の変化"
+  headers: ["業務内容", "従来（手動）", "Skills 活用後", "変化量"]
+  rows:
+    - ["広告制作（クリエイティブ）", "30 分", "30 秒", "−98%"]
+    - ["週次レポート作成", "2 時間", "10 分", "最大 −91%"]</code></pre>
+
+<p><code>impact-table</code> の各行は必ず <strong>4要素の配列</strong> にすること（headers の列数と一致させる）。</p>
+
+<hr>
+
+<h2 id="s7">7. トラブルシューティング</h2>
+
+<h3>ビルドエラー一覧</h3>
+
+<h4>[YAMLエラー] bad indentation of a mapping entry (X:Y)</h4>
+
+<p><strong>原因</strong>: インデントがずれている。タブ文字が混入している。</p>
+
+<pre><code># 誤り（items と - のインデントが不一致）
+- type: stats
+  items:
+  - org: "チューリング社"  # ← items より浅い
+
+# 正しい
+- type: stats
+  items:
+    - org: "チューリング社"  # ← items より2スペース深い</code></pre>
+
+<p><strong>対処</strong>: テキストエディタで「タブ → スペース変換」を実行し、インデントをそろえる。</p>
+
+<hr>
+
+<h4>[YAMLエラー] unexpected character after ... / found character that cannot start any token</h4>
+
+<p><strong>原因</strong>: 文字列内のダブルクォートが引用符と干渉している。</p>
+
+<pre><code># 誤り
+subtitle: "「使いこなす側」に"回る"ために"
+
+# 正しい（シングルクォートに変更）
+subtitle: '「使いこなす側」に"回る"ために'</code></pre>
+
+<hr>
+
+<h4>[スキーマエラー] 未知の type "..."</h4>
+
+<p><strong>原因</strong>: <code>type</code> フィールドのスペルミス。</p>
+
+<p>有効な type 一覧: <code>prose</code>, <code>h3</code>, <code>h4</code>, <code>pull</code>, <code>stats</code>, <code>table</code>, <code>impact-table</code>, <code>layers</code>, <code>kitchen</code>, <code>cats</code>, <code>matrix</code>, <code>steps</code>, <code>dbs</code>, <code>codeblock</code>, <code>usecases</code>, <code>pitfalls</code>, <code>warn</code>, <code>checklist</code>, <code>cta</code></p>
+
+<p><strong>対処</strong>: 上記リストと照合し、スペルを修正する。ハイフン（<code>-</code>）の有無に注意（<code>impact-table</code> はハイフンあり）。</p>
+
+<hr>
+
+<h4>[ビルドエラー] Cannot read properties of undefined</h4>
+
+<p><strong>原因</strong>: 必須フィールドが欠落している。</p>
+
+<p>たとえば <code>stats</code> ブロックで <code>items</code> がない、<code>pull</code> ブロックで <code>body_md</code> がない等。各ブロック種別のフィールド一覧（§4）を確認して、必須フィールドをすべて記述する。</p>
+
+<hr>
+
+<h4>ブラウザで反映されない</h4>
+
+<ol>
+<li><code>npm run build</code> を実行したか確認する（忘れていることが多い）</li>
+<li>ハードリロード <code>Ctrl+F5</code>（Windows）または <code>Cmd+Shift+R</code>（Mac）を試す</li>
+<li>ターミナルのビルドログにエラーが出ていないか確認する</li>
+</ol>
+
+<hr>
+
+<h4>アイコンが表示されない</h4>
+
+<p>アイコン名が正しくない場合、アイコンが表示されない（空白になる）。</p>
+
+<p><strong>利用可能なアイコン名一覧:</strong></p>
+
+<pre><code>ico-flag    ico-layers  ico-filter  ico-tool    ico-bank
+ico-shield  ico-spark   ico-clock   ico-team    ico-folder
+ico-arrow   ico-alert   ico-lock    ico-target  ico-book
+ico-check   ico-doc     ico-bolt    ico-chart   ico-grid
+ico-search  ico-kitchen ico-recipe  ico-route   ico-cycle
+ico-feather</code></pre>
+
+<p><code>icon: ico-xxx</code> と書いたとき、上記リストに存在しない名前はアイコンが表示されない。</p>
+
+<hr>
+
+<h4>Markdown の <code>**bold**</code> がそのまま表示される</h4>
+
+<p>該当フィールドが Markdown 非対応（§5 の非対応フィールド一覧参照）。<code>_md</code> サフィックスなしのフィールドはプレーンテキストとして扱われる。</p>
+
+<p>解決策: 対応しているフィールドの種別に変更するか、Markdown 非対応と割り切ってプレーンテキストで書く。</p>
+
+<hr>
+
+<h2 id="s8">8. スコープ外（このガイドが扱わないこと）</h2>
+
+<p>以下の変更は <code>content/page.md</code> の編集では対応できない。テンプレートやスクリプトの修正が必要になるため、エンジニアに依頼すること。</p>
+
+<ul>
+<li><strong>新しいブロック種別の追加</strong>: <code>templates/partials/</code> への新規 <code>.hbs</code> ファイルの追加と、<code>scripts/build.js</code> の <code>KNOWN_BLOCK_TYPES</code> 配列への追加が必要</li>
+<li><strong>CSS の色・フォント変更</strong>: <code>templates/page.hbs</code> の <code>&lt;style&gt;</code> ブロックを直接編集</li>
+<li><strong>レイアウト構造の変更</strong>: ナビ・ヒーロー・フッターのHTML構造変更は <code>templates/page.hbs</code> を編集</li>
+<li><strong>アイコンの追加</strong>: <code>templates/page.hbs</code> 内の SVG シンボル定義に追加が必要</li>
+<li><strong>Watch mode / 自動ビルド</strong>: 現在は手動 <code>npm run build</code> のみ。自動化が必要な場合はエンジニアに相談</li>
+</ul>
+
+</main>
+</div>
+</body>
+</html>

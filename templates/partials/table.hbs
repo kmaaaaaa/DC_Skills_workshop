@@ -1,0 +1,19 @@
+{{#if caption}}<div class="table-cap">{{caption}}</div>{{/if}}
+<table>
+  <thead>
+    <tr>
+      {{#each headers}}
+        <th>{{this}}</th>
+      {{/each}}
+    </tr>
+  </thead>
+  <tbody>
+    {{#each rows}}
+      <tr>
+        {{#each this}}
+          {{#if @first}}<td class="key">{{this}}</td>{{else}}<td>{{{md this}}}</td>{{/if}}
+        {{/each}}
+      </tr>
+    {{/each}}
+  </tbody>
+</table>

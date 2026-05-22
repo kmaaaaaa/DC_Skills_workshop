@@ -1,0 +1,1135 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Markdown ⇄ HTML 連動システム実装計画</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700&family=Noto+Serif+JP:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #F4F1EA;
+    --bg-2: #FBF9F4;
+    --paper: #FFFFFF;
+    --ink: #1B1A17;
+    --ink-2: #3C3A34;
+    --ink-3: #75716A;
+    --line: #E4DFD3;
+    --line-2: #D9D3C4;
+    --accent: #C8643C;
+    --accent-2: #A14F2C;
+    --accent-soft: #F6E3D6;
+    --leaf: #5C6B3F;
+    --serif: "Noto Serif JP", "Hiragino Mincho ProN", serif;
+    --sans: "Noto Sans JP", "Hiragino Kaku Gothic ProN", system-ui, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-feature-settings: "palt";
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    font-size: 16px;
+    line-height: 1.75;
+    letter-spacing: .01em;
+  }
+
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  ::selection { background: var(--accent); color: #fff; }
+
+  /* ===== layout ===== */
+  .page-layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 0;
+    min-height: 100vh;
+    max-width: 1180px;
+    margin: 0 auto;
+  }
+
+  /* ===== sidebar ===== */
+  .sidebar {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    border-right: 1px solid var(--line);
+    background: var(--bg-2);
+    padding: 40px 0 40px 0;
+  }
+
+  .sidebar-inner {
+    padding: 0 24px;
+  }
+
+  .sidebar-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .sidebar-title {
+    font-family: var(--serif);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1.5;
+    margin-bottom: 32px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .toc-list {
+    list-style: none;
+  }
+
+  .toc-list li {
+    margin-bottom: 4px;
+  }
+
+  .toc-list a {
+    display: block;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    color: var(--ink-2);
+    line-height: 1.45;
+    transition: background .15s, color .15s;
+  }
+
+  .toc-list a:hover {
+    background: var(--accent-soft);
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .toc-num {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: .1em;
+    margin-right: 6px;
+  }
+
+  .sidebar-meta {
+    margin-top: 32px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+    font-size: 11.5px;
+    color: var(--ink-3);
+    line-height: 1.7;
+  }
+
+  .sidebar-meta .badge {
+    display: inline-block;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .08em;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+  }
+
+  /* ===== main content ===== */
+  .main {
+    padding: 60px 64px 100px;
+    min-width: 0;
+  }
+
+  /* ===== doc header ===== */
+  .doc-header {
+    margin-bottom: 56px;
+    padding-bottom: 40px;
+    border-bottom: 2px solid var(--accent);
+  }
+
+  .doc-eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+
+  .doc-title {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(28px, 3.2vw, 42px);
+    line-height: 1.2;
+    letter-spacing: -.005em;
+    color: var(--ink);
+    margin-bottom: 20px;
+  }
+
+  .doc-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-3);
+    letter-spacing: .05em;
+  }
+
+  .doc-meta span { display: inline-flex; align-items: center; gap: 6px; }
+  .doc-meta .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
+
+  /* ===== section headings ===== */
+  .section-block {
+    margin-bottom: 64px;
+    scroll-margin-top: 24px;
+  }
+
+  h2.sec-h2 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(20px, 2.4vw, 28px);
+    line-height: 1.3;
+    color: var(--ink);
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+
+  h2.sec-h2 .h2-num {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--accent);
+    letter-spacing: .1em;
+    flex-shrink: 0;
+  }
+
+  h3.sec-h3 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 18px;
+    color: var(--ink);
+    margin: 32px 0 14px;
+  }
+
+  h4.sec-h4 {
+    font-family: var(--mono);
+    font-size: 13px;
+    letter-spacing: .1em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin: 28px 0 10px;
+  }
+
+  /* ===== prose ===== */
+  .prose {
+    font-size: 15.5px;
+    line-height: 1.85;
+    color: var(--ink-2);
+    max-width: 720px;
+  }
+
+  .prose p { margin-bottom: 16px; }
+  .prose p:last-child { margin-bottom: 0; }
+  .prose strong { color: var(--ink); font-weight: 600; }
+  .prose em { font-style: italic; color: var(--ink); }
+  .prose code {
+    font-family: var(--mono);
+    font-size: .88em;
+    background: var(--accent-soft);
+    color: var(--accent-2);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+
+  .prose ul, .prose ol {
+    padding-left: 20px;
+    margin-bottom: 16px;
+  }
+  .prose li { margin-bottom: 4px; }
+
+  /* ===== divider ===== */
+  hr.divider {
+    border: none;
+    border-top: 1px solid var(--line);
+    margin: 48px 0;
+  }
+
+  /* ===== table ===== */
+  .table-wrap {
+    overflow-x: auto;
+    margin: 24px 0;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    background: var(--paper);
+  }
+
+  thead tr {
+    background: var(--ink);
+    color: #fff;
+  }
+
+  thead th {
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 500;
+    font-family: var(--sans);
+    font-size: 13px;
+    letter-spacing: .03em;
+    white-space: nowrap;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid var(--line);
+    transition: background .1s;
+  }
+
+  tbody tr:last-child { border-bottom: none; }
+
+  tbody tr:hover { background: var(--bg); }
+
+  tbody td {
+    padding: 11px 16px;
+    color: var(--ink-2);
+    vertical-align: top;
+    line-height: 1.6;
+  }
+
+  tbody td code {
+    font-family: var(--mono);
+    font-size: .85em;
+    background: var(--accent-soft);
+    color: var(--accent-2);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+
+  /* first col accent */
+  tbody td:first-child {
+    font-weight: 500;
+    color: var(--ink);
+  }
+
+  /* ===== code block ===== */
+  .code-block {
+    background: var(--ink);
+    color: #E8E2D7;
+    font-family: var(--mono);
+    font-size: 13.5px;
+    line-height: 1.65;
+    border-radius: 12px;
+    padding: 28px 32px;
+    overflow-x: auto;
+    margin: 24px 0;
+    tab-size: 2;
+  }
+
+  .code-block .kw { color: #C8A97B; } /* keyword */
+  .code-block .str { color: #98C379; } /* string */
+  .code-block .cm { color: #6B7280; font-style: italic; } /* comment */
+  .code-block .fn { color: #61AFEF; } /* function */
+  .code-block .cn { color: #E5C07B; } /* constant */
+  .code-block .pn { color: #ABB2BF; } /* punctuation */
+
+  pre.code-block code {
+    background: transparent;
+    color: inherit;
+    padding: 0;
+    font-size: inherit;
+    border-radius: 0;
+  }
+
+  /* ===== checklist ===== */
+  .checklist {
+    list-style: none;
+    padding: 0;
+    margin: 16px 0;
+  }
+
+  .checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 15px;
+    color: var(--ink-2);
+    line-height: 1.6;
+  }
+
+  .checklist li:last-child { border-bottom: none; }
+
+  .checklist .cb {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    border: 1.5px solid var(--line-2);
+    border-radius: 4px;
+    margin-top: 3px;
+    display: grid;
+    place-items: center;
+    background: var(--paper);
+  }
+
+  .checklist .cb.checked {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .checklist .cb.checked::after {
+    content: "";
+    display: block;
+    width: 10px;
+    height: 6px;
+    border-left: 2px solid #fff;
+    border-bottom: 2px solid #fff;
+    transform: rotate(-45deg) translate(1px, -1px);
+  }
+
+  /* ===== callout / warn ===== */
+  .callout {
+    background: var(--accent-soft);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 16px 20px;
+    margin: 20px 0;
+    font-size: 14.5px;
+    color: var(--ink-2);
+    line-height: 1.7;
+  }
+
+  .callout strong { color: var(--accent); }
+
+  /* ===== directory tree ===== */
+  .dir-tree {
+    background: var(--ink);
+    color: #ABB2BF;
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.7;
+    border-radius: 12px;
+    padding: 28px 32px;
+    overflow-x: auto;
+    margin: 24px 0;
+  }
+
+  .dir-tree .dir { color: #61AFEF; }
+  .dir-tree .file { color: #ABB2BF; }
+  .dir-tree .comment { color: #6B7280; }
+  .dir-tree .accent-file { color: #C8A97B; }
+
+  /* ===== risk table ===== */
+  .risk-id {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  /* ===== responsive ===== */
+  @media (max-width: 900px) {
+    .page-layout {
+      grid-template-columns: 1fr;
+    }
+    .sidebar {
+      position: static;
+      height: auto;
+      border-right: none;
+      border-bottom: 1px solid var(--line);
+    }
+    .main {
+      padding: 40px 28px 80px;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .main { padding: 28px 16px 60px; }
+    .doc-title { font-size: 24px; }
+  }
+</style>
+</head>
+<body>
+<div class="page-layout">
+  <!-- ===== Sidebar ===== -->
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+      <span class="sidebar-label">計画書</span>
+      <div class="sidebar-title">Markdown ⇄ HTML<br>連動システム</div>
+
+      <nav aria-label="目次">
+        <ul class="toc-list">
+          <li><a href="#s1"><span class="toc-num">01</span>目的</a></li>
+          <li><a href="#s2"><span class="toc-num">02</span>ユーザー回答の前提</a></li>
+          <li><a href="#s3"><span class="toc-num">03</span>アーキテクチャ</a></li>
+          <li><a href="#s4"><span class="toc-num">04</span>YAMLスキーマ設計</a></li>
+          <li><a href="#s5"><span class="toc-num">05</span>テンプレート設計</a></li>
+          <li><a href="#s6"><span class="toc-num">06</span>ビルドスクリプト</a></li>
+          <li><a href="#s7"><span class="toc-num">07</span>実装フェーズ &amp; Agent Team</a></li>
+          <li><a href="#s8"><span class="toc-num">08</span>検証戦略</a></li>
+          <li><a href="#s9"><span class="toc-num">09</span>Devil's Advocate</a></li>
+          <li><a href="#s10"><span class="toc-num">10</span>完了条件</a></li>
+          <li><a href="#s11"><span class="toc-num">11</span>スコープ外</a></li>
+        </ul>
+      </nav>
+
+      <div class="sidebar-meta">
+        <div class="badge">計画段階</div>
+        <div><strong>作成日</strong>: 2026-05-21</div>
+        <div style="margin-top:6px"><strong>対象</strong>: claude-skills-light.html ビルドパイプライン</div>
+        <div style="margin-top:6px;color:var(--accent)">ユーザー承認待ち</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===== Main ===== -->
+  <main class="main">
+    <!-- Doc Header -->
+    <header class="doc-header">
+      <div class="doc-eyebrow">Implementation Plan · DC Skills Workshop</div>
+      <h1 class="doc-title">Markdown ⇄ HTML 連動システム実装計画</h1>
+      <div class="doc-meta">
+        <span><span class="dot"></span>作成日: 2026-05-21</span>
+        <span><span class="dot"></span>ステータス: 計画段階（ユーザー承認待ち）</span>
+        <span><span class="dot"></span>対象: claude-skills-light.html ビルドパイプライン新設</span>
+      </div>
+    </header>
+
+    <!-- 1. 目的 -->
+    <section class="section-block" id="s1">
+      <h2 class="sec-h2"><span class="h2-num">01</span>目的（What &amp; Why）</h2>
+      <div class="prose">
+        <p>現状、<code>claude-skills-light.html</code>（約780行）は手書きHTML。文言・数値の変更のたびにHTML本体を直接編集する必要があり、以下の課題がある:</p>
+        <ul>
+          <li>構造化されたカード/表/数値が多数あり、視覚的に内容を追いにくい</li>
+          <li>編集時にCSSクラスやSVGアイコン参照を壊すリスクがある</li>
+          <li>バージョン管理上、差分が「文章変更」なのか「構造変更」なのか区別しづらい</li>
+        </ul>
+        <p><strong>解決策</strong>: 編集対象（テキスト・数値・キャプション）を <code>content/page.md</code>（YAMLフロントマター + Markdown本文）に分離。<strong>Handlebarsテンプレート</strong>で構造を保持し、<strong><code>npm run build</code></strong> でHTMLを再生成する。</p>
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- 2. ユーザー回答の前提 -->
+    <section class="section-block" id="s2">
+      <h2 class="sec-h2"><span class="h2-num">02</span>ユーザー回答の前提</h2>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>項目</th>
+              <th>選択</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>ソース構成</td><td>ハイブリッド（YAML + 本文Markdown）</td></tr>
+            <tr><td>ビルド</td><td>手動（<code>npm run build</code>）</td></tr>
+            <tr><td>ランタイム</td><td>Node.js</td></tr>
+            <tr><td>編集範囲</td><td>テキスト編集のみ（見出し・本文・数値・キャプション）</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout">
+        「テキスト編集のみ」前提のため、カード枚数・表の行数の増減はYAML配列の要素を追加すれば動作するが、<strong>新しいブロック種別の追加はテンプレ修正が必要</strong>である点を明示する。
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- 3. アーキテクチャ -->
+    <section class="section-block" id="s3">
+      <h2 class="sec-h2"><span class="h2-num">03</span>アーキテクチャ</h2>
+
+      <div class="dir-tree">
+<span class="dir">DC_Skills_workshop/</span>
+├── <span class="accent-file">claude-skills-light.html</span>       <span class="comment"># ビルド成果物（編集禁止）</span>
+├── <span class="file">package.json</span>                    <span class="comment"># 依存とnpm scripts</span>
+├── <span class="dir">content/</span>
+│   └── <span class="accent-file">page.md</span>                     <span class="comment"># YAML frontmatter + Markdown本文（編集対象）</span>
+├── <span class="dir">templates/</span>
+│   ├── <span class="file">page.hbs</span>                    <span class="comment"># メインテンプレート</span>
+│   └── <span class="dir">partials/</span>                   <span class="comment"># 各ブロック種別のパーシャル</span>
+│       ├── <span class="file">stats.hbs</span>
+│       ├── <span class="file">layers.hbs</span>
+│       ├── <span class="file">kitchen.hbs</span>
+│       ├── <span class="file">cats.hbs</span>
+│       ├── <span class="file">matrix.hbs</span>
+│       ├── <span class="file">steps.hbs</span>
+│       ├── <span class="file">dbs.hbs</span>
+│       ├── <span class="file">codeblock.hbs</span>
+│       ├── <span class="file">usecases.hbs</span>
+│       ├── <span class="file">impact-table.hbs</span>
+│       ├── <span class="file">pitfalls.hbs</span>
+│       ├── <span class="file">warn.hbs</span>
+│       ├── <span class="file">checklist.hbs</span>
+│       ├── <span class="file">pull.hbs</span>
+│       ├── <span class="file">table.hbs</span>
+│       └── <span class="file">cta.hbs</span>
+├── <span class="dir">scripts/</span>
+│   └── <span class="file">build.js</span>                    <span class="comment"># ビルドスクリプト</span>
+└── <span class="file">README.md</span>                       <span class="comment"># 使い方ガイド</span>
+      </div>
+
+      <h3 class="sec-h3">依存ライブラリ（npm）</h3>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>パッケージ</th>
+              <th>用途</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><code>handlebars</code></td><td>テンプレートエンジン（パーシャル、ヘルパー対応）</td></tr>
+            <tr><td><code>js-yaml</code></td><td>YAMLフロントマターのパース</td></tr>
+            <tr><td><code>gray-matter</code></td><td>Markdownフロントマター分離</td></tr>
+            <tr><td><code>marked</code></td><td>Markdown本文 → HTML変換</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="prose">
+        <p>合計4パッケージ。すべて成熟・保守されている軽量ライブラリ。</p>
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- 4. YAMLスキーマ設計 -->
+    <section class="section-block" id="s4">
+      <h2 class="sec-h2"><span class="h2-num">04</span>YAMLスキーマ設計</h2>
+
+      <h3 class="sec-h3">基本方針</h3>
+      <div class="prose">
+        <ul>
+          <li><strong>構造化データ</strong> → YAML（数値、カード配列、表データ）</li>
+          <li><strong>長文プロース</strong> → Markdown本文 or YAML内 <code>_md</code> サフィックス付きフィールド（例: <code>label_md</code>）</li>
+          <li><strong><code>&lt;br/&gt;</code> 改行を含む見出し</strong> → YAML文字列内に <code>\n</code> を入れて <code>nl2br</code> ヘルパーで変換、もしくは生HTMLを許可</li>
+          <li><strong><code>&lt;strong&gt;</code>/<code>&lt;em&gt;</code>/<code>&lt;code&gt;</code> の強調</strong> → Markdownの <code>**bold**</code> / <code>*em*</code> / <code>`code`</code> を <code>marked</code> で変換</li>
+        </ul>
+      </div>
+
+      <h3 class="sec-h3">スキーマ全体像</h3>
+
+      <pre class="code-block"><code>---
+page:
+  title: "Claude Skills 活用ガイド｜非エンジニアのための完全マニュアル"
+  lang: ja
+
+nav:
+  brand: "Claude Skills 活用ガイド"
+  brand_icon: ico-spark
+  links:
+    - { href: "#s1", label: "戦略的意義" }
+    - { href: "#s2", label: "機能構造" }
+    # ...
+
+hero:
+  eyebrow: "NON-ENGINEER PLAYBOOK ／ 2026"
+  headline_md: |
+    非エンジニアのための
+
+    Claude *「Skills」*活用完全ガイド
+  lede: "AIを「便利なチャット」から「頼れる自律的なチーム」へ。…"
+  meta:
+    - { icon: ico-clock, label: "READING 約12分" }
+    - { icon: ico-book,  label: "SECTIONS 6章" }
+    - { icon: ico-team,  label: "FOR 非エンジニア／管理職" }
+  figure:
+    - { key: "日本企業のAI導入率", value: "55.2", unit: "%", caption: "…" }
+    - { key: "仮想チーム規模",     value: "32",   unit: "人分", caption: "…" }
+    - { key: "レポート作成時間",   value: "7",    unit: "分",   caption: "…" }
+    - { key: "構築期間",           value: "2",    unit: "週間", caption: "…" }
+
+sections:
+  - id: s1
+    num: "01"
+    icon: ico-flag
+    title_md: |
+      AIエージェント時代における
+      「Skills」の戦略的意義
+    subtitle: "対話から自律業務遂行へ ── …"
+    blocks:
+      - type: prose
+        md: "2026年現在、AI活用は単なる…"
+      - { type: h3, text: "概念の定義：プロンプトから「知的資産（IP）」へ" }
+      - type: pull
+        body_md: "Skillsは一度作って終わりではなく…"
+        cite: "—— 戦略的ベネフィットの本質"
+      - type: stats
+        items:
+          - org: "チューリング社"
+            before: "8部門"
+            after: "1人"
+            label_md: "…"
+  # … (他5セクションも同様)
+
+footer:
+  left: "CLAUDE SKILLS PLAYBOOK / 社内勉強会資料"
+  right: "v1.0 · 2026"
+---</code></pre>
+
+      <h3 class="sec-h3">ブロック種別一覧</h3>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th><code>type</code></th>
+              <th>用途</th>
+              <th>必須フィールド</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><code>prose</code></td><td>通常段落（複数段落可、Markdown）</td><td><code>md</code></td></tr>
+            <tr><td><code>h3</code></td><td>中見出し</td><td><code>text</code></td></tr>
+            <tr><td><code>h4</code></td><td>小見出し（モノスペース）</td><td><code>text</code></td></tr>
+            <tr><td><code>pull</code></td><td>引用ブロック</td><td><code>body_md</code>, <code>cite</code></td></tr>
+            <tr><td><code>stats</code></td><td>統計カード3枚</td><td><code>items[]</code></td></tr>
+            <tr><td><code>table</code></td><td>汎用表</td><td><code>caption?</code>, <code>headers[]</code>, <code>rows[]</code></td></tr>
+            <tr><td><code>impact-table</code></td><td>Before/After比較表（特殊スタイル）</td><td><code>caption</code>, <code>headers[]</code>, <code>rows[]</code></td></tr>
+            <tr><td><code>layers</code></td><td>3層構造図</td><td><code>items[]</code></td></tr>
+            <tr><td><code>kitchen</code></td><td>キッチンアナロジー2カード</td><td><code>items[]</code></td></tr>
+            <tr><td><code>cats</code></td><td>カテゴリーカード3枚</td><td><code>items[]</code></td></tr>
+            <tr><td><code>matrix</code></td><td>2×2マトリクス</td><td><code>y_label</code>, <code>x_labels</code>, <code>cells[]</code></td></tr>
+            <tr><td><code>steps</code></td><td>4ステップ</td><td><code>items[]</code></td></tr>
+            <tr><td><code>dbs</code></td><td>DBSフレームワーク3カード</td><td><code>items[]</code></td></tr>
+            <tr><td><code>codeblock</code></td><td>ダーク背景コードブロック</td><td><code>lines[]</code>（<code>{kind: c|k|s|text, text}</code>）</td></tr>
+            <tr><td><code>usecases</code></td><td>ユースケース3カード</td><td><code>items[]</code></td></tr>
+            <tr><td><code>pitfalls</code></td><td>落とし穴4カード</td><td><code>items[]</code></td></tr>
+            <tr><td><code>warn</code></td><td>警告ボックス</td><td><code>title</code>, <code>icon</code>, <code>body_md</code></td></tr>
+            <tr><td><code>checklist</code></td><td>チェックリスト</td><td><code>title</code>, <code>items_md[]</code></td></tr>
+            <tr><td><code>cta</code></td><td>コールトゥアクション</td><td><code>title</code>, <code>body</code>, <code>button_label</code>, <code>button_href</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="prose">
+        <p>各種別は <code>templates/partials/&lt;type&gt;.hbs</code> に対応するパーシャルを持ち、<code>page.hbs</code> のメインループは <code>&#123;&#123;&gt; (lookup . 'type') &#125;&#125;</code> でディスパッチする。</p>
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- 5. テンプレート設計 -->
+    <section class="section-block" id="s5">
+      <h2 class="sec-h2"><span class="h2-num">05</span>テンプレート設計</h2>
+
+      <h3 class="sec-h3"><code>templates/page.hbs</code>（骨格）</h3>
+
+      <div class="prose">
+        <p>既存HTMLの構造（doctype、head、SVGシンボル定義、nav、hero、footer）をそのまま保持し、編集対象部分のみ <code>&#123;&#123;...&#125;&#125;</code> に置換する。例:</p>
+      </div>
+
+      <pre class="code-block"><code>&lt;nav class="nav"&gt;
+  &lt;div class="nav-inner"&gt;
+    &lt;div class="brand"&gt;
+      &lt;span class="brand-mark"&gt;&#123;&#123;&gt; icon name=nav.brand_icon size=14&#125;&#125;&lt;/span&gt;
+      &lt;span&gt;&#123;&#123;nav.brand&#125;&#125;&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;div class="nav-links"&gt;
+      &#123;&#123;#each nav.links&#125;&#125;
+        &lt;a href="&#123;&#123;href&#125;&#125;"&gt;&#123;&#123;label&#125;&#125;&lt;/a&gt;
+      &#123;&#123;/each&#125;&#125;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/nav&gt;</code></pre>
+
+      <h3 class="sec-h3">カスタムヘルパー</h3>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ヘルパー</th>
+              <th>用途</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><code>&#123;&#123;md text&#125;&#125;</code></td><td>Markdown文字列をインラインHTMLに変換（段落タグなし）</td></tr>
+            <tr><td><code>&#123;&#123;mdBlock text&#125;&#125;</code></td><td>Markdown文字列をブロックHTMLに変換（<code>&lt;p&gt;</code> 含む）</td></tr>
+            <tr><td><code>&#123;&#123;&gt; icon name="ico-flag" size=24&#125;&#125;</code></td><td>SVGアイコン挿入のパーシャル</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="sec-h3">パーシャル例: <code>templates/partials/stats.hbs</code></h3>
+
+      <pre class="code-block"><code>&lt;div class="stats"&gt;
+  &#123;&#123;#each items&#125;&#125;
+    &lt;div class="stat"&gt;
+      &lt;div class="org"&gt;
+        &lt;span class="pill"&gt;&#123;&#123;&gt; icon name=org_icon size=14&#125;&#125;&lt;/span&gt;
+        &#123;&#123;org&#125;&#125;
+      &lt;/div&gt;
+      &lt;div class="row"&gt;
+        &lt;span class="a"&gt;&#123;&#123;before&#125;&#125;&lt;/span&gt;
+        &lt;span class="arrow"&gt;→&lt;/span&gt;
+        &lt;span class="b"&gt;&#123;&#123;after&#125;&#125;&lt;/span&gt;
+      &lt;/div&gt;
+      &lt;div class="label"&gt;&#123;&#123;&#123;md label_md&#125;&#125;&#125;&lt;/div&gt;
+    &lt;/div&gt;
+  &#123;&#123;/each&#125;&#125;
+&lt;/div&gt;</code></pre>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- 6. ビルドスクリプト -->
+    <section class="section-block" id="s6">
+      <h2 class="sec-h2"><span class="h2-num">06</span>ビルドスクリプト <code>scripts/build.js</code></h2>
+
+      <pre class="code-block"><code>// 概略
+const fs = require('node:fs');
+const path = require('node:path');
+const matter = require('gray-matter');
+const yaml = require('js-yaml');
+const Handlebars = require('handlebars');
+const { marked } = require('marked');
+
+// 1. content/page.md を読み込み、フロントマター抽出
+const src = fs.readFileSync('content/page.md', 'utf8');
+const { data } = matter(src, { engines: { yaml: s => yaml.load(s) } });
+
+// 2. パーシャル登録
+const partialsDir = 'templates/partials';
+for (const f of fs.readdirSync(partialsDir)) {
+  const name = path.basename(f, '.hbs');
+  Handlebars.registerPartial(name, fs.readFileSync(path.join(partialsDir, f), 'utf8'));
+}
+
+// 3. ヘルパー登録
+marked.setOptions({ breaks: false, gfm: true });
+Handlebars.registerHelper('md',      s => new Handlebars.SafeString(marked.parseInline(s || '')));
+Handlebars.registerHelper('mdBlock', s => new Handlebars.SafeString(marked.parse(s || '')));
+
+// 4. メインテンプレートをコンパイル → レンダリング → 書き出し
+const tpl = Handlebars.compile(fs.readFileSync('templates/page.hbs', 'utf8'), { noEscape: false });
+const html = tpl(data);
+fs.writeFileSync('claude-skills-light.html', html);
+console.log('Built claude-skills-light.html');</code></pre>
+
+      <h3 class="sec-h3"><code>package.json</code></h3>
+
+      <pre class="code-block"><code>{
+  "name": "claude-skills-workshop",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "node scripts/build.js",
+    "build:check": "node scripts/build.js && echo Done"
+  },
+  "devDependencies": {
+    "handlebars": "^4.7.8",
+    "js-yaml": "^4.1.0",
+    "gray-matter": "^4.0.3",
+    "marked": "^12.0.0"
+  }
+}</code></pre>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- 7. 実装フェーズ -->
+    <section class="section-block" id="s7">
+      <h2 class="sec-h2"><span class="h2-num">07</span>実装フェーズと Agent Team</h2>
+
+      <h3 class="sec-h3">モデル割り当てテーブル</h3>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>エージェント名</th>
+              <th>subagent_type</th>
+              <th>モデル</th>
+              <th>担当スコープ</th>
+              <th>実行順序</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td>スキーマ確定・パーシャル一覧設計</td>
+              <td>−（メイン直接）</td>
+              <td><code>Opus</code></td>
+              <td>この計画書</td>
+              <td>Phase 1</td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>content/page.md 抽出</td>
+              <td>general-purpose</td>
+              <td><code>sonnet</code></td>
+              <td>content/page.md</td>
+              <td>Phase 2</td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td>templates/page.hbs + partials/*.hbs 作成</td>
+              <td>general-purpose</td>
+              <td><code>sonnet</code></td>
+              <td>templates/ 全体</td>
+              <td>Phase 2</td>
+            </tr>
+            <tr>
+              <td>4</td>
+              <td>scripts/build.js + package.json 作成</td>
+              <td>general-purpose</td>
+              <td><code>sonnet</code></td>
+              <td>scripts/, package.json</td>
+              <td>Phase 2</td>
+            </tr>
+            <tr>
+              <td>5</td>
+              <td>README.md 追記（使い方ガイド）</td>
+              <td>general-purpose</td>
+              <td><code>sonnet</code></td>
+              <td>README.md</td>
+              <td>Phase 2</td>
+            </tr>
+            <tr>
+              <td>6</td>
+              <td>npm install 実行</td>
+              <td>general-purpose</td>
+              <td><code>haiku</code></td>
+              <td>−</td>
+              <td>Phase 3</td>
+            </tr>
+            <tr>
+              <td>7</td>
+              <td>npm run build 実行</td>
+              <td>general-purpose</td>
+              <td><code>haiku</code></td>
+              <td>−</td>
+              <td>Phase 3</td>
+            </tr>
+            <tr>
+              <td>8</td>
+              <td>生成HTMLとオリジナルの差分検証</td>
+              <td>general-purpose</td>
+              <td><code>sonnet</code></td>
+              <td>差分レビュー</td>
+              <td>Phase 4</td>
+            </tr>
+            <tr>
+              <td>9</td>
+              <td>実装後 DA レビュー</td>
+              <td>general-purpose</td>
+              <td><code>opus</code></td>
+              <td>全変更</td>
+              <td>Phase 4</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout">
+        <strong>並行・順次の整理:</strong>
+        Phase 2 の #2〜#5 は並行起動（依存なし）。Phase 3 の #6→#7 は順次。Phase 4 の #8 と #9 は並行。
+      </div>
+
+      <h3 class="sec-h3">インターフェース先行定義（Phase 1 で固定）</h3>
+
+      <div class="prose">
+        <p>以下を本計画書で確定済みとして Phase 2 サブエージェントに渡す:</p>
+        <ul>
+          <li>ディレクトリ構造（§3）</li>
+          <li>YAMLスキーマ全体像とブロック種別表（§4）</li>
+          <li>パーシャルファイル名一覧（§3）</li>
+          <li>必要なHandlebarsヘルパー（§5）</li>
+          <li>ビルドスクリプトのI/F（§6）</li>
+        </ul>
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- 8. 検証戦略 -->
+    <section class="section-block" id="s8">
+      <h2 class="sec-h2"><span class="h2-num">08</span>検証戦略</h2>
+
+      <h3 class="sec-h3">機能テスト</h3>
+      <div class="prose">
+        <ol>
+          <li><code>npm install</code> が成功する</li>
+          <li><code>npm run build</code> が成功する</li>
+          <li>生成された <code>claude-skills-light.html</code> をブラウザで開いて視覚的に確認（オリジナルと同等）</li>
+        </ol>
+      </div>
+
+      <h3 class="sec-h3">差分検証（Phase 4 #8）</h3>
+      <div class="prose">
+        <p>オリジナル（<code>.tmp/design-fetch/skills-workshop/project/claude-skills-light.html</code>）と生成HTMLを比較:</p>
+        <ul>
+          <li><strong>構造の一致</strong>: セクション数、カード枚数、表の行数が一致</li>
+          <li><strong>クラス名の一致</strong>: 主要CSSクラスが欠落していない</li>
+          <li><strong>コンテンツの一致</strong>: 主要見出しと数値が一致</li>
+          <li><strong>許容差分</strong>: 空白・改行・インデントの差は許容（視覚的に同一なら OK）</li>
+        </ul>
+      </div>
+
+      <h3 class="sec-h3">編集テスト（受入確認）</h3>
+      <div class="prose">
+        <p>実装完了後、ユーザーが <code>content/page.md</code> の例えば「55.2%」を「60%」に変更 → <code>npm run build</code> → 再生成HTMLで該当箇所が「60%」になっていることを確認。</p>
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- 9. Devil's Advocate -->
+    <section class="section-block" id="s9">
+      <h2 class="sec-h2"><span class="h2-num">09</span>Devil's Advocate（計画時セルフレビュー）</h2>
+
+      <div class="callout">
+        <strong>観点:</strong> 「この計画が失敗するとしたら、どこで失敗するか？」
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>リスク・指摘</th>
+              <th>対応方針</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="risk-id">R1</span></td>
+              <td>YAML内で <code>&lt;br/&gt;</code> を含む見出しが多数。改行表現がMarkdownライブラリの設定で挙動が変わり、見出しが崩れる可能性</td>
+              <td><code>marked.setOptions({ breaks: false })</code> を明示し、改行は2回連続改行（段落区切り）で表現。Phase 2 で実装時に最終決定</td>
+            </tr>
+            <tr>
+              <td><span class="risk-id">R2</span></td>
+              <td>既存HTMLにインラインスタイルが散在。Markdownで <code>`code`</code> だけ書くと再現できない</td>
+              <td>パーシャル側でCSSクラス（例: <code>.code-inline-accent</code>）を新設し、<code>&lt;style&gt;</code> ブロックに追加してインラインstyleを排除。この変更は計画スコープに含める</td>
+            </tr>
+            <tr>
+              <td><span class="risk-id">R3</span></td>
+              <td><code>gray-matter</code> はデフォルトで <code>safeLoad</code> を使うため、YAML標準仕様の一部が制限される</td>
+              <td><code>js-yaml</code> を明示的に <code>engines</code> で渡し、最新仕様（YAML 1.2）に対応</td>
+            </tr>
+            <tr>
+              <td><span class="risk-id">R4</span></td>
+              <td>「テキスト編集のみ」前提だが、ユーザーがYAML構造を壊した時のエラーが分かりにくい</td>
+              <td><code>build.js</code> に最低限のスキーマ検証（例: <code>sections[].blocks[].type</code> が既知の値か）を追加し、失敗時に具体的なメッセージを出す</td>
+            </tr>
+            <tr>
+              <td><span class="risk-id">R5</span></td>
+              <td>公開スキルの36.8%にセキュリティ問題がある（本文記載）が、<code>marked</code> のHTMLパススルー設定によってMarkdown経由でXSSが入る可能性</td>
+              <td>本ファイルは社内勉強会資料・静的生成のため脅威モデル外。<strong>入れない</strong>（社内ツールでオーバーエンジニアリング）</td>
+            </tr>
+            <tr>
+              <td><span class="risk-id">R6</span></td>
+              <td>Handlebarsの動的パーシャル参照は構文がやや特殊。Handlebars 4.x で動作確認が必要</td>
+              <td>Phase 2 #3 で最初に検証。動作しない場合は <code>{{#if (eq type 'stats')}}{{&gt; stats}}{{/if}}</code> のチェイン形式にフォールバック</td>
+            </tr>
+            <tr>
+              <td><span class="risk-id">R7</span></td>
+              <td>既存HTMLとピクセル完全一致は難しい（空白・改行差）</td>
+              <td>「視覚的に同一」を達成すれば十分と Phase 4 #8 で明示</td>
+            </tr>
+            <tr>
+              <td><span class="risk-id">R8</span></td>
+              <td>スコープ拡大の懸念: README全面リライト、Watch mode追加、HTMLバリデーション追加など、ユーザー依頼を超える機能を入れがち</td>
+              <td>本計画スコープを「ビルドパイプライン + 使い方の最小限のREADME」に限定。Watch mode やライブリロードは追加しない</td>
+            </tr>
+            <tr>
+              <td><span class="risk-id">R9</span></td>
+              <td><code>.tmp/design-fetch/</code> を残すか削除するか</td>
+              <td>残す（オリジナルとの差分検証に使う）。<code>.gitignore</code> 推奨をREADMEに記載</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="sec-h3">Codex セカンドオピニオン</h3>
+      <div class="prose">
+        <ul>
+          <li><strong>計画時 Codex DA</strong>: 標準的なSSGビルドパイプライン（YAML + Handlebars + marked → HTML）であり、技術的に新規性は低い。<strong>スキップ</strong>（理由: 確立されたパターン、技術選定リスクが小さい）。</li>
+          <li><strong>実装後 Codex DA</strong>: Phase 4 #9 のOpus DAと並行で実施する。</li>
+        </ul>
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- 10. 完了条件 -->
+    <section class="section-block" id="s10">
+      <h2 class="sec-h2"><span class="h2-num">10</span>完了条件</h2>
+
+      <ul class="checklist">
+        <li>
+          <span class="cb"></span>
+          <span><code>content/page.md</code> に既存HTMLの全テキスト・数値が抽出されている</span>
+        </li>
+        <li>
+          <span class="cb"></span>
+          <span><code>npm run build</code> で <code>claude-skills-light.html</code> が生成される</span>
+        </li>
+        <li>
+          <span class="cb"></span>
+          <span>生成HTMLをブラウザで開くと、オリジナルと視覚的に同等</span>
+        </li>
+        <li>
+          <span class="cb"></span>
+          <span><code>README.md</code> に編集→ビルドの手順が記載されている</span>
+        </li>
+        <li>
+          <span class="cb"></span>
+          <span>受入テスト（<code>content/page.md</code> を1箇所変更 → 再ビルドで反映）が成功する</span>
+        </li>
+      </ul>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- 11. スコープ外 -->
+    <section class="section-block" id="s11">
+      <h2 class="sec-h2"><span class="h2-num">11</span>スコープ外（今回は実装しない）</h2>
+
+      <div class="prose">
+        <ul>
+          <li>Watch mode（ファイル変更検知での自動再ビルド）</li>
+          <li>ライブリロード／開発サーバー</li>
+          <li>HTMLバリデーション／Lint</li>
+          <li>多言語化対応</li>
+          <li>ダークテーマ版（<code>claude-skills-dark.html</code>）の同パイプライン化</li>
+          <li>構造編集UI／GUI</li>
+        </ul>
+        <p>これらは別途要望があれば後続フェーズで検討。</p>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer style="margin-top:80px;padding-top:32px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11px;color:var(--ink-3);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+      <span>DC Skills Workshop · 計画書</span>
+      <span>2026-05-21 · ステータス: ユーザー承認待ち</span>
+    </footer>
+  </main>
+</div>
+</body>
+</html>
