@@ -14,7 +14,8 @@ const ROOT = path.resolve(__dirname, '..');
 const KNOWN_BLOCK_TYPES = [
   'prose', 'h3', 'h4', 'pull', 'stats', 'table', 'impact-table',
   'layers', 'kitchen', 'cats', 'matrix', 'steps', 'dbs',
-  'codeblock', 'usecases', 'pitfalls', 'warn', 'checklist', 'cta'
+  'codeblock', 'usecases', 'pitfalls', 'warn', 'checklist', 'cta',
+  'glossary-table'
 ];
 
 /**

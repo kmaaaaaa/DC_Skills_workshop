@@ -1,5 +1,5 @@
 {{#if caption}}<div class="table-cap">{{caption}}</div>{{/if}}
-<table{{#if class}} class="{{class}}"{{/if}}>
+<table>
   <thead>
     <tr>
       {{#each headers}}
@@ -9,8 +9,8 @@
   </thead>
   <tbody>
     {{#each rows}}
-      <tr>
-        {{#each this}}
+      <tr id="{{id}}">
+        {{#each cells}}
           {{#if @first}}<td class="key">{{this}}</td>{{else}}<td>{{{md this}}}</td>{{/if}}
         {{/each}}
       </tr>

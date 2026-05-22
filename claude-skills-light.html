@@ -108,19 +108,6 @@
   tbody tr:last-child td{border-bottom:none}
   td.key{font-weight:600;color:var(--ink);width:200px;font-family:var(--serif);font-size:17px}
   .table-cap{font-family:var(--mono);font-size:11px;color:var(--ink-3);letter-spacing:.14em;text-transform:uppercase;margin:48px 0 12px}
-  /* BEFORE/AFTER テーブル: 業務内容を広く、残り3カラムは均等に */
-  table.impact{table-layout:fixed}
-  table.impact td.key{width:auto}
-  table.impact th:nth-child(1),table.impact td:nth-child(1){width:40%}
-  table.impact th:nth-child(2),table.impact td:nth-child(2){width:20%}
-  table.impact th:nth-child(3),table.impact td:nth-child(3){width:20%}
-  table.impact th:nth-child(4),table.impact td:nth-child(4){width:20%}
-  /* どこで Skills を使えるか: 利用環境=Skills機能 同幅、備考は狭める */
-  table.envs{table-layout:fixed}
-  table.envs td.key{width:auto;white-space:nowrap}
-  table.envs th:nth-child(1),table.envs td:nth-child(1){width:25%}
-  table.envs th:nth-child(2),table.envs td:nth-child(2){width:25%}
-  table.envs th:nth-child(3),table.envs td:nth-child(3){width:50%}
 
   /* progressive disclosure 3-layer figure */
   .layers{display:flex;flex-direction:column;gap:14px;margin:36px 0}
@@ -209,9 +196,21 @@
   @media (max-width:900px){.usecases{grid-template-columns:1fr}}
 
   /* impact table */
+  table.impact{table-layout:fixed}
+  table.impact td.key{width:auto}
+  table.impact th:nth-child(1),table.impact td:nth-child(1){width:40%}
+  table.impact th:nth-child(2),table.impact td:nth-child(2){width:20%}
+  table.impact th:nth-child(3),table.impact td:nth-child(3){width:20%}
+  table.impact th:nth-child(4),table.impact td:nth-child(4){width:20%}
   table.impact td.before{color:var(--ink-3);font-family:var(--mono);font-size:14px}
   table.impact td.after{color:var(--accent);font-family:var(--mono);font-size:14px;font-weight:600}
   table.impact td.delta{text-align:right;font-family:var(--mono);font-size:13px;color:var(--leaf);font-weight:600}
+  /* どこで Skills を使えるか: 利用環境=Skills機能 同幅、備考は狭める */
+  table.envs{table-layout:fixed}
+  table.envs td.key{width:auto;white-space:nowrap}
+  table.envs th:nth-child(1),table.envs td:nth-child(1){width:25%}
+  table.envs th:nth-child(2),table.envs td:nth-child(2){width:25%}
+  table.envs th:nth-child(3),table.envs td:nth-child(3){width:50%}
 
   /* pitfalls */
   .pitfalls{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin:36px 0}
@@ -249,7 +248,7 @@
   /* code inline accent (replaces scattered inline styles) */
   .code-inline-accent{font-family:var(--mono);background:var(--accent-soft);color:var(--accent-2);padding:2px 8px;border-radius:4px;font-size:13px}
 
-  /* glossary cross-linking */
+  /* 用語集クロスリンク */
   a.gloss{color:inherit;text-decoration:none;border-bottom:1px dotted var(--accent);padding-bottom:1px;transition:background .2s ease, color .2s ease, border-color .2s ease}
   a.gloss:hover{background:var(--accent-soft);color:var(--accent-2);border-bottom-color:var(--accent-2)}
   a.gloss::after{content:"↗";font-size:.7em;margin-left:.15em;color:var(--accent);opacity:.65;vertical-align:super}
@@ -472,7 +471,7 @@ FOR Claude.aiを触ったことのある非エンジニア</span>
       <p>Skills は <strong>SKILL.md</strong>（指示ファイル）と参照ファイルを束ねた<strong>フォルダ</strong>です。Claude.ai の設定画面から ZIP ファイルとしてアップロードするだけで、すぐにチャットで活用できます。プログラミングの知識は一切不要です。</p>
       
       <h3>どこで Skills を使えるか</h3>
-
+      
       <table class="envs">
         <thead>
           <tr>
@@ -563,10 +562,10 @@ FOR Claude.aiを触ったことのある非エンジニア</span>
     </div>
 
       <p>Skills の中核ファイル <code>SKILL.md</code> は <strong>Markdown（マークダウン）</strong> 形式の文書ですが、<strong>あなたが自分で書く必要はありません</strong>。Claude.ai のチャットで「こんな業務を自動化したい」と相談すると、Claude が必要な情報をヒアリングしながら、<strong>裏側で SKILL.md を起草</strong>してくれます。あなたの役割は <strong>「自分の業務を言葉で説明すること」</strong>──つまり <em>壁打ち</em>です。</p>
-
+      
       <h3>壁打ちで生まれる：Claude との対話フロー</h3>
       <p>SKILL.md は完成形を見ながらゼロから書くものではなく、Claude との会話の中で少しずつ形になります。あなたが書くのは「業務の言葉」だけ。Markdown も YAML も Claude が裏側で整えます。</p>
-
+      
       <div class="steps">
           <div class="step">
             <div class="n">STEP 01</div>
@@ -597,9 +596,8 @@ FOR Claude.aiを触ったことのある非エンジニア</span>
             <p>提示された SKILL.md を読み、意図とズレがあれば「ここはこう変えて」と追加で対話。納得できたら ZIP 化してアップロード。</p>
           </div>
       </div>
-
       <p>以下のセクションは、Claude が出力した SKILL.md を <strong>「読み解く」</strong>ための最低限の知識です。自分で書くためではなく、生成物を理解し的確にレビューするために役立ちます。</p>
-
+      
       <h3>読み解くための Markdown 5 記法</h3>
       <div class="layers">
           <div class="layer">
@@ -701,6 +699,7 @@ FOR Claude.aiを触ったことのある非エンジニア</span>
       </div>
       <h3>Hello Skill：壁打ちから生まれた完成形</h3>
       <p>「週報整形を自動化したい」という相談から、Claude が裏側で起こした SKILL.md の例です。あなたが書いたのは <strong>業務の説明だけ</strong>。Markdown 構造はすべて Claude が整えています。</p>
+      
       <pre class="codeblock"><span class="c">## 完全なサンプル：weekly-report/SKILL.md</span>
       <span class="text"></span>
       <span class="k">---</span>
@@ -1356,6 +1355,7 @@ FOR Claude.aiを触ったことのある非エンジニア</span>
   </div>
 </footer>
 
+
 <button class="return-btn" id="returnBtn" aria-label="元の位置に戻る">← 元の位置に戻る</button>
 
 <script>
@@ -1410,16 +1410,12 @@ FOR Claude.aiを触ったことのある非エンジニア</span>
     let resultHTML = '';
     let cursor = 0;
 
-    // 各用語について未処理の部分を検索
-    // 用語ごとに最初の1件しかリンク化しないため、
-    // テキスト全体を走査して最も早く登場する未リンク用語を1つずつ処理する
     while (cursor < text.length) {
       let earliest = null;
       let earliestIndex = Infinity;
 
       for (const term of TERMS) {
         if (linked.has(term.id)) continue;
-        // カーソル位置以降で検索
         const re = new RegExp(term.p.source, term.p.flags.replace('g',''));
         re.lastIndex = 0;
         const searchStr = text.slice(cursor);
@@ -1431,13 +1427,10 @@ FOR Claude.aiを触ったことのある非エンジニア</span>
       }
 
       if (!earliest) {
-        // 残りはそのまま
         resultHTML += escapeHTML(text.slice(cursor));
         cursor = text.length;
       } else {
-        // マッチ前のテキスト
         resultHTML += escapeHTML(text.slice(cursor, earliest.index));
-        // リンクに変換
         resultHTML += '<a class="gloss" href="#' + earliest.term.id + '">' + escapeHTML(earliest.match) + '</a>';
         linked.add(earliest.term.id);
         cursor = earliest.index + earliest.match.length;
@@ -1462,7 +1455,6 @@ FOR Claude.aiを触ったことのある非エンジニア</span>
     if (node.nodeType === Node.TEXT_NODE) {
       if (node.parentElement && SKIP_TAGS.has(node.parentElement.tagName)) return;
       if (isInsideGlossary(node)) return;
-      // 対象タグ（p, li）の子テキストノードのみ処理
       const parentTag = node.parentElement ? node.parentElement.tagName : '';
       if (parentTag === 'P' || parentTag === 'LI') {
         linkifyTextNode(node);
@@ -1472,7 +1464,6 @@ FOR Claude.aiを触ったことのある非エンジニア</span>
     if (node.nodeType === Node.ELEMENT_NODE) {
       if (SKIP_TAGS.has(node.tagName)) return;
       if (node.id === 'glossary') return;
-      // 子ノードのリストをコピーして走査（DOM変更を考慮）
       const children = Array.from(node.childNodes);
       for (const child of children) {
         walk(child);
@@ -1493,7 +1484,6 @@ FOR Claude.aiを触ったことのある非エンジニア</span>
 
     let trackingActive = false;
 
-    // ハイライト行の右側にボタンを配置
     function positionButton() {
       const hash = window.location.hash;
       if (!hash.startsWith('#term-')) return;
@@ -1531,7 +1521,6 @@ FOR Claude.aiを触ったことのある非エンジニア</span>
       stopTracking();
     }
 
-    // ページ内の .gloss リンクにクリックイベントを付与
     document.body.addEventListener('click', function(e) {
       const link = e.target.closest('a.gloss');
       if (link) {
@@ -1539,7 +1528,6 @@ FOR Claude.aiを触ったことのある非エンジニア</span>
       }
     });
 
-    // ボタンクリックで元の位置に戻る
     btn.addEventListener('click', function() {
       const y = sessionStorage.getItem('glossReturnY');
       if (y !== null) {
@@ -1549,7 +1537,6 @@ FOR Claude.aiを触ったことのある非エンジニア</span>
       hideButton();
     });
 
-    // ハッシュ変化を監視してボタン表示/非表示
     function checkHash() {
       const hash = window.location.hash;
       if (hash.startsWith('#term-')) {
@@ -1562,12 +1549,9 @@ FOR Claude.aiを触ったことのある非エンジニア</span>
     }
 
     window.addEventListener('hashchange', checkHash);
-
-    // 初期チェック（ブラウザの戻る/進むで #term- に戻ってきた場合）
     checkHash();
   }
 })();
 </script>
-
 </body>
 </html>

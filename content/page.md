@@ -100,6 +100,7 @@ sections:
         text: "どこで Skills を使えるか"
 
       - type: table
+        class: envs
         headers: ["利用環境", "Skills 機能", "備考"]
         rows:
           - ["Claude.ai 無料プラン", "利用制限あり", "機能の範囲は公式ヘルプを確認"]
@@ -158,14 +159,44 @@ sections:
       SKILL.md の読み方・書き方：
 
       文書で AI を教育する
-    subtitle: "Skills はプログラムではなく文書。Markdown が書ければ今日から作れる"
+    subtitle: "自分で書くのではなく、Claude との壁打ちの中で裏側で生まれる文書"
     blocks:
       - type: prose
         md: |
-          Skills の中核ファイル `SKILL.md` は、**プログラミング言語ではなく Markdown（マークダウン）** で書かれた文書です。業務フローを日本語で論理的に書き出すことができれば、非エンジニアでも「AIの教育」が可能です。
+          Skills の中核ファイル `SKILL.md` は **Markdown（マークダウン）** 形式の文書ですが、**あなたが自分で書く必要はありません**。Claude.ai のチャットで「こんな業務を自動化したい」と相談すると、Claude が必要な情報をヒアリングしながら、**裏側で SKILL.md を起草**してくれます。あなたの役割は **「自分の業務を言葉で説明すること」**──つまり *壁打ち*です。
 
       - type: h3
-        text: "Markdown の最低限 5 記法"
+        text: "壁打ちで生まれる：Claude との対話フロー"
+
+      - type: prose
+        md: |
+          SKILL.md は完成形を見ながらゼロから書くものではなく、Claude との会話の中で少しずつ形になります。あなたが書くのは「業務の言葉」だけ。Markdown も YAML も Claude が裏側で整えます。
+
+      - type: steps
+        items:
+          - n: "STEP 01"
+            icon: ico-spark
+            title: "業務の課題を相談する"
+            body_md: "「経理の月次レポート作成を自動化したい」など、自然な日本語で目的を伝える。専門用語もコードも不要。"
+          - n: "STEP 02"
+            icon: ico-team
+            title: "Claude の質問に答える"
+            body_md: "「入力データはどの形式？」「いつ使う？」「出力は誰向け？」など、Claude が必要な情報をヒアリングしてくる。普段の業務知識を答えるだけ。"
+          - n: "STEP 03"
+            icon: ico-feather
+            title: "Claude が裏側で起草する"
+            body_md: "会話の内容を元に、Claude が `SKILL.md` を生成。YAML フロントマター・Workflow・必要なら `references/` の補助ファイルまで一式整える。"
+          - n: "STEP 04"
+            icon: ico-check
+            title: "生成物をレビューして再壁打ち"
+            body_md: "提示された SKILL.md を読み、意図とズレがあれば「ここはこう変えて」と追加で対話。納得できたら ZIP 化してアップロード。"
+
+      - type: prose
+        md: |
+          以下のセクションは、Claude が出力した SKILL.md を **「読み解く」**ための最低限の知識です。自分で書くためではなく、生成物を理解し的確にレビューするために役立ちます。
+
+      - type: h3
+        text: "読み解くための Markdown 5 記法"
 
       - type: layers
         items:
@@ -195,7 +226,7 @@ sections:
 
       - type: prose
         md: |
-          SKILL.md の冒頭には `---` で囲まれた **YAML フロントマター**（メタデータ）を記述します。ここに書かれた `name`（スキル名）と `description`（説明）を Claude が読み取り、「いつこのスキルを使うか」を自動判断します。
+          Claude が生成する SKILL.md の冒頭には、必ず `---` で囲まれた **YAML フロントマター**（メタデータ）が記述されます。ここに書かれた `name`（スキル名）と `description`（説明）を Claude 本体が読み取り、「いつこのスキルを使うか」を自動判断します。**レビュー時はこの 2 項目が業務シナリオと合っているかを必ず確認**してください。
 
       - type: codeblock
         lines:
@@ -238,7 +269,11 @@ sections:
             side: "KNOWLEDGE\n必要時に展開"
 
       - type: h3
-        text: "Hello Skill：週報整形を 10 行で"
+        text: "Hello Skill：壁打ちから生まれた完成形"
+
+      - type: prose
+        md: |
+          「週報整形を自動化したい」という相談から、Claude が裏側で起こした SKILL.md の例です。あなたが書いたのは **業務の説明だけ**。Markdown 構造はすべて Claude が整えています。
 
       - type: codeblock
         lines:
@@ -607,32 +642,55 @@ sections:
       - type: h3
         text: "用語集"
 
-      - type: table
+      - type: glossary-table
         headers: ["用語", "一行説明", "詳細"]
         rows:
-          - ["Claude.ai", "Anthropic が提供する Web チャット製品", "ブラウザから利用できる Claude の公式インターフェース。無料プランと有料プランがある。"]
-          - ["Claude Cowork", "Claude.ai の有料プラン向け自律実行機能", "ローカルファイル操作・スケジュール実行などの拡張機能を提供。2026年5月時点の情報のため最新は公式を参照。"]
-          - ["Claude API", "開発者向けの Claude 接続インターフェース", "エンジニアがアプリやシステムに Claude を組み込む際に使用。本ガイドの対象外。"]
-          - ["Projects", "Claude.ai のチャット管理機能", "テーマ別に会話をグループ化し、コンテキスト（記憶）を共有できる機能。"]
-          - ["Artifacts", "Claude が生成した成果物", "Claude がチャット内で生成した文書・コード・表などのファイル。ダウンロードや共有が可能。"]
-          - ["Skills", "業務手順をパッケージ化した再利用可能な指示テンプレート", "SKILL.md を中核とするフォルダ。ZIP でアップロードして使う。"]
-          - ["SKILL.md", "スキルの中核ファイル", "YAML フロントマター（name / description）と Markdown で書かれた Workflow で構成される。"]
-          - ["プラグイン", "Claude に機能を追加する拡張モジュール", "Anthropic や開発者が提供する機能拡張。Skills はプラグインの一形態として位置づけられる場合がある。"]
-          - ["Dispatch", "Skills のトリガー判断メカニズム", "Claude が description を読んで「このスキルを使うべきか」を自動判断するプロセス。"]
-          - ["MCP", "Model Context Protocol の略。AIと外部ツールをつなぐ規格", "Anthropic が策定したオープン規格。Skills はMCPの上で動くレシピのような存在。"]
-          - ["コンテキスト", "Claude が一度の会話で保持できる情報の総量", "トークンで計測される。多くの情報を読み込むほどコンテキストを消費し、処理精度に影響する。"]
-          - ["トークン", "AI がテキストを処理する最小単位", "日本語では概ね1〜2文字が1トークン。コンテキストの消費量・APIの料金計算に使われる。"]
-          - ["YAML", "設定ファイルの記述形式", "SKILL.md のフロントマターで使用。key: value 形式で読みやすく構造化されたデータを表現できる。"]
-          - ["Markdown", "軽量マークアップ言語", "# 見出し、- リスト、**太字** などの記法でテキストを構造化する。SKILL.md の本文部分で使用。"]
-          - ["kebab-case", "単語をハイフンでつなぐ命名規則", "例: `financial-report`、`weekly-report`。スペースや大文字・アンダースコアは使用しない。"]
-          - ["プログレッシブ・ディスクロージャー（Progressive Disclosure）", "段階的な情報開示の設計原則", "必要なときに必要な情報だけを展開する設計。コンテキストの節約と精度向上を両立する。本文 s3 の「3 層構造」と同義。"]
-          - ["DBS フレームワーク", "高品質スキル設計のための 3 要素", "Direction（指示／SKILL.md 本文）／ Blueprints（参照ファイル）／ Solutions（補助スクリプト）の頭文字。役割を分離して再利用性と保守性を高める設計指針。"]
-          - ["トリガー", "スキルを自動起動させるキーワード・シナリオ", "description に書かれた内容をもとに Claude が判断する。具体的なシナリオが含まれるほど精度が上がる。"]
-          - ["フロントマター", "ファイル冒頭の --- で囲まれたメタデータ領域", "SKILL.md では name と description を記述する。Claude が Dispatch（起動判断）に使用する。"]
-          - ["Workflow", "SKILL.md の本文セクション", "フロントマターの後に記述する手順書。Claude が実際に実行する業務フローを記述する。"]
-          - ["references", "Skills フォルダ内の参照ファイル置き場", "ブランドガイド・フォーマット定義・チェックリストなど「静的知識」を格納するサブフォルダ。"]
-          - ["scripts", "Skills フォルダ内のスクリプト置き場", "計算・データ変換などのコードを格納するサブフォルダ。Claude に自動生成させることができる。"]
-          - ["assets", "Skills フォルダ内の素材置き場", "画像・テンプレートファイルなどを格納するサブフォルダ。スキルが参照する静的ファイル全般。"]
+          - id: term-claude-ai
+            cells: ["Claude.ai", "Anthropic が提供する Web チャット製品", "ブラウザから利用できる Claude の公式インターフェース。無料プランと有料プランがある。"]
+          - id: term-claude-cowork
+            cells: ["Claude Cowork", "Claude.ai の有料プラン向け自律実行機能", "ローカルファイル操作・スケジュール実行などの拡張機能を提供。2026年5月時点の情報のため最新は公式を参照。"]
+          - id: term-claude-api
+            cells: ["Claude API", "開発者向けの Claude 接続インターフェース", "エンジニアがアプリやシステムに Claude を組み込む際に使用。本ガイドの対象外。"]
+          - id: term-projects
+            cells: ["Projects", "Claude.ai のチャット管理機能", "テーマ別に会話をグループ化し、コンテキスト（記憶）を共有できる機能。"]
+          - id: term-artifacts
+            cells: ["Artifacts", "Claude が生成した成果物", "Claude がチャット内で生成した文書・コード・表などのファイル。ダウンロードや共有が可能。"]
+          - id: term-skills
+            cells: ["Skills", "業務手順をパッケージ化した再利用可能な指示テンプレート", "SKILL.md を中核とするフォルダ。ZIP でアップロードして使う。"]
+          - id: term-skill-md
+            cells: ["SKILL.md", "スキルの中核ファイル", "YAML フロントマター（name / description）と Markdown で書かれた Workflow で構成される。"]
+          - id: term-plugin
+            cells: ["プラグイン", "Claude に機能を追加する拡張モジュール", "Anthropic や開発者が提供する機能拡張。Skills はプラグインの一形態として位置づけられる場合がある。"]
+          - id: term-dispatch
+            cells: ["Dispatch", "Skills のトリガー判断メカニズム", "Claude が description を読んで「このスキルを使うべきか」を自動判断するプロセス。"]
+          - id: term-mcp
+            cells: ["MCP", "Model Context Protocol の略。AIと外部ツールをつなぐ規格", "Anthropic が策定したオープン規格。Skills はMCPの上で動くレシピのような存在。"]
+          - id: term-context
+            cells: ["コンテキスト", "Claude が一度の会話で保持できる情報の総量", "トークンで計測される。多くの情報を読み込むほどコンテキストを消費し、処理精度に影響する。"]
+          - id: term-token
+            cells: ["トークン", "AI がテキストを処理する最小単位", "日本語では概ね1〜2文字が1トークン。コンテキストの消費量・APIの料金計算に使われる。"]
+          - id: term-yaml
+            cells: ["YAML", "設定ファイルの記述形式", "SKILL.md のフロントマターで使用。key: value 形式で読みやすく構造化されたデータを表現できる。"]
+          - id: term-markdown
+            cells: ["Markdown", "軽量マークアップ言語", "# 見出し、- リスト、**太字** などの記法でテキストを構造化する。SKILL.md の本文部分で使用。"]
+          - id: term-kebab-case
+            cells: ["kebab-case", "単語をハイフンでつなぐ命名規則", "例: `financial-report`、`weekly-report`。スペースや大文字・アンダースコアは使用しない。"]
+          - id: term-progressive-disclosure
+            cells: ["プログレッシブ・ディスクロージャー（Progressive Disclosure）", "段階的な情報開示の設計原則", "必要なときに必要な情報だけを展開する設計。コンテキストの節約と精度向上を両立する。本文 s3 の「3 層構造」と同義。"]
+          - id: term-dbs-framework
+            cells: ["DBS フレームワーク", "高品質スキル設計のための 3 要素", "Direction（指示／SKILL.md 本文）／ Blueprints（参照ファイル）／ Solutions（補助スクリプト）の頭文字。役割を分離して再利用性と保守性を高める設計指針。"]
+          - id: term-trigger
+            cells: ["トリガー", "スキルを自動起動させるキーワード・シナリオ", "description に書かれた内容をもとに Claude が判断する。具体的なシナリオが含まれるほど精度が上がる。"]
+          - id: term-frontmatter
+            cells: ["フロントマター", "ファイル冒頭の --- で囲まれたメタデータ領域", "SKILL.md では name と description を記述する。Claude が Dispatch（起動判断）に使用する。"]
+          - id: term-workflow
+            cells: ["Workflow", "SKILL.md の本文セクション", "フロントマターの後に記述する手順書。Claude が実際に実行する業務フローを記述する。"]
+          - id: term-references
+            cells: ["references", "Skills フォルダ内の参照ファイル置き場", "ブランドガイド・フォーマット定義・チェックリストなど「静的知識」を格納するサブフォルダ。"]
+          - id: term-scripts
+            cells: ["scripts", "Skills フォルダ内のスクリプト置き場", "計算・データ変換などのコードを格納するサブフォルダ。Claude に自動生成させることができる。"]
+          - id: term-assets
+            cells: ["assets", "Skills フォルダ内の素材置き場", "画像・テンプレートファイルなどを格納するサブフォルダ。スキルが参照する静的ファイル全般。"]
 
 footer:
   left: "CLAUDE SKILLS PLAYBOOK / 社内勉強会資料"
